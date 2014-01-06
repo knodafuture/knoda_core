@@ -170,8 +170,7 @@ class User < ActiveRecord::Base
 
   def search_data
     {
-      username: username,
-      email: email
+      username: username
     }
   end  
 end
