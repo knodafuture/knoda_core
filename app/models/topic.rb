@@ -1,5 +1,5 @@
 class Topic < ActiveRecord::Base
-  scope :find_active, -> { where('hidden is false').order('id ASC')}
+  scope :find_active, -> { where('hidden is false').order('sort_order ASC')}
   
   include Authority::Abilities
   self.authorizer_name = 'TopicAuthorizer'
