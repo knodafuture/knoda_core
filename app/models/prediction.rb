@@ -138,6 +138,18 @@ class Prediction < ActiveRecord::Base
     self.expires_at.past?
   end
 
+  def settled
+    is_closed?
+  end
+  
+  def expired
+    expires_at && expires_at.past?
+  end
+
+  def is_ready_for_resolution
+    resolution_date != nil && resolution_date.past?
+  end   
+
   private
   
   def is_not_settled
@@ -194,5 +206,5 @@ class Prediction < ActiveRecord::Base
         body: body,
         tags: tags
       }
-  end    
+  end     
 end

@@ -172,5 +172,19 @@ class User < ActiveRecord::Base
     {
       username: username
     }
-  end  
+  end 
+
+  def streak_as_text
+    if self.streak == 0
+      return ""
+    end
+    
+    if self.streak > 0
+      return "W#{self.streak}"
+    end
+    
+    if self.streak < 0
+      return "L#{self.streak.abs}"
+    end
+  end   
 end

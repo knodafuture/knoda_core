@@ -34,4 +34,16 @@ class Comment < ActiveRecord::Base
       end
     end
   end
+
+  def challenge
+    self.user.challenges.where(prediction_id: self.prediction_id).first
+  end  
+
+  def settled
+    self.is_closed?
+  end
+  
+  def expired
+    self.expires_at && self.expires_at.past?
+  end  
 end
