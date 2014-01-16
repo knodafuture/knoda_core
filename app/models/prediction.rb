@@ -7,7 +7,7 @@ class Prediction < ActiveRecord::Base
   
   after_create :prediction_create_badges
   after_create :create_own_challenge
-  after_create :shortenUrl
+  after_create :shortenUrl if Rails.env.production?
 
   belongs_to :user, inverse_of: :predictions
   
