@@ -51,6 +51,10 @@ class Prediction < ActiveRecord::Base
     a.length
   end
 
+  def agree_percentage
+    (self.agreed_count.fdiv(self.challenges.length) * 100.0).round(0)
+  end
+
   def comment_count
     self.comments.length
   end
