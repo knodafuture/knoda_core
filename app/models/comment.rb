@@ -12,6 +12,7 @@ class Comment < ActiveRecord::Base
 
   scope :recent, lambda {{ :order => "comments.created_at DESC" } }
   scope :id_lt, -> (i) {where('comments.id < ?', i) if i}
+  scope :id_gt, -> (i) {where('comments.id > ?', i) if i}
 
   def create_activities
     commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
