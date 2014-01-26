@@ -176,7 +176,7 @@ class User < ActiveRecord::Base
 
   def streak_as_text
     if self.streak == 0
-      return ""
+      return "W#{0}"
     end
     
     if self.streak > 0
