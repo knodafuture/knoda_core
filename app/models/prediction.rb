@@ -150,8 +150,8 @@ class Prediction < ActiveRecord::Base
     expires_at && expires_at.past?
   end
 
-  def is_ready_for_resolution
-    resolution_date != nil && resolution_date.past?
+  def is_ready_for_resolution?
+    resolution_date.past?
   end   
 
   private
