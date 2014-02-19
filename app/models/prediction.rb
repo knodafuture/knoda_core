@@ -1,6 +1,5 @@
 class Prediction < ActiveRecord::Base
   searchkick
-  acts_as_taggable
   
   include Authority::Abilities
   self.authorizer_name = 'PredictionAuthorizer'
@@ -18,9 +17,8 @@ class Prediction < ActiveRecord::Base
   validates :body, presence: true
   validates :expires_at, presence: true
 
-  validates :tag_list, presence: true
+  validates :tags, presence: true
   validate  :max_tag_count
-  validate  :tag_existence, :on => :create
   validate  :expires_at_is_not_past, :on => :create
   validate  :new_expires_at_is_not_past, :on => :update
   validate  :resolution_is_not_past, :on => :update
@@ -179,13 +177,14 @@ class Prediction < ActiveRecord::Base
   end
 
   def max_tag_count
-    errors[:tag_list] << "1 tag maximum" if self.tag_list.count > 1
+
+    errors[:tags] << "1 tag maximum" if self.tags.size > 1
   end
   
   def tag_existence
-    self.tag_list.each do |tag_name|
+    self.tags.each do |tag_name|
       if Topic.where(name: tag_name, hidden: false).first.nil?
-        errors[:tag_list] << "invalid tag #{tag_name}"
+        errors[:tags] << "invalid tag #{tag_name}"
       end
     end
   end
