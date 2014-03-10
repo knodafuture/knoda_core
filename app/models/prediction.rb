@@ -38,6 +38,8 @@ class Prediction < ActiveRecord::Base
   scope :expired, -> {where('is_closed is false and resolution_date is not null and resolution_date < now()')}
   scope :readyForResolution, -> {where('is_closed is false and resolution_date < now()')}
   scope :notAlerted, -> {where('activity_sent_at is null')}
+  scope :for_group, -> (i) {where('group_id = ?', i) if i}
+  scope :visible_to_user, -> (i) {where('group_id is null or group_id in (Select group_id from memberships where user_id = ?)', i) if i}
 
   def disagreed_count
     d = self.challenges.select { |c| c.agree == false}
@@ -62,8 +64,6 @@ class Prediction < ActiveRecord::Base
   end
   
   def prediction_market
-    #first, check if users challenge was correct, then
-    #if predictor was right, use agree percent, if it was wrong, use disagree percent
     if self.outcome == true
       return (self.agreed_count.fdiv(self.market_size) * 100.0).round(2)
     else  

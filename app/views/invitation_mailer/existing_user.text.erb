@@ -1,0 +1,3 @@
+Hi 
+
+I'd like you to join my group<%if @invitation.group %>, <%= @invitation.group.name %>,<% end %> on KNODA.  Click this link to join: <%= "#{Rails.application.config.knoda_web_url}#{@invitation.invitation_link}" %>
