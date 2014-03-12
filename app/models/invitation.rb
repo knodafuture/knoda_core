@@ -4,7 +4,7 @@ class Invitation < ActiveRecord::Base
   after_create :generate_code
   #after_create :send_invite
 
-  scope :unnotified, -> {where('push_notified_at is null and email_notified_at is null')}
+  scope :unnotified, -> {where('notified_at is null')}
 
   def invitation_link
     "/join?code=#{self.code}"
@@ -14,11 +14,10 @@ class Invitation < ActiveRecord::Base
     if (self.recipient_user_id)
       InvitationMailer.existing_user(self).deliver
       InvitationPushNotifier.deliver(self)
-      invitation.update(:email_notified_at => DateTime.now, :push_notified_at => DateTime.now)
     elsif (self.recipient_email)
       InvitationMailer.new_user(self).deliver
-      invitation.update(:email_notified_at => DateTime.now)
     end      
+    invitation.update(:notified_at => DateTime.now)
   end          
 
   private
