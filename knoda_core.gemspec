@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'aws-sdk'  
   s.add_dependency 'authority', '2.6.0'
   s.add_dependency 'twilio-ruby'
-
+  s.add_dependency 'mandrill_mailer'
 
   s.add_development_dependency "sqlite3"
 end
