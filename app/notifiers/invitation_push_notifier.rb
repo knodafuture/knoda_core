@@ -20,7 +20,7 @@ class InvitationPushNotifier
       pusher.push(notification)   
     end
     if recipient.android_device_tokens.size > 0
-      response = gcm.send_notification(p.user.android_device_tokens.pluck(:token), {data: {alert: message}});
+      response = gcm.send_notification(recipient.android_device_tokens.pluck(:token), {data: {alert: message}});
     end    
   end
 end

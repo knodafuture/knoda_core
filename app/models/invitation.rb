@@ -7,7 +7,7 @@ class Invitation < ActiveRecord::Base
   scope :unnotified, -> {where('notified_at is null')}
 
   def invitation_link
-    "/join?code=#{self.code}"
+    "#{Rails.application.config.knoda_web_url}/groups/join?code=#{self.code}"
   end
 
   def send_invite
@@ -16,8 +16,10 @@ class Invitation < ActiveRecord::Base
       InvitationPushNotifier.deliver(self)
     elsif (self.recipient_email)
       InvitationMailer.new_user(self).deliver
+    elsif (self.recipient_phone)
+      InvitationSmsNotifier.deliver(self)
     end      
-    invitation.update(:notified_at => DateTime.now)
+    self.update(:notified_at => DateTime.now)
   end          
 
   private
