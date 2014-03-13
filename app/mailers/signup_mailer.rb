@@ -5,7 +5,7 @@ class SignupMailer < MandrillMailer::TemplateMailer
     mandrill_mail template: 'Signup',
       to: {email: user.email},
       vars: {
-        'USERNAME' => user.username,
+        'USERNAME' => user.username
       },
       important: true,
       inline_css: true

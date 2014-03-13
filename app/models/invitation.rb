@@ -12,10 +12,10 @@ class Invitation < ActiveRecord::Base
 
   def send_invite
     if (self.recipient_user_id)
-      InvitationMailer.existing_user(self).deliver
+      InvitationMailer.inv(self).deliver
       InvitationPushNotifier.deliver(self)
     elsif (self.recipient_email)
-      InvitationMailer.new_user(self).deliver
+      InvitationMailer.inv(self).deliver
     elsif (self.recipient_phone)
       InvitationSmsNotifier.deliver(self)
     end      

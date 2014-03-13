@@ -1,22 +1,22 @@
-class InvitationMailer < ActionMailer::Base
-  require 'mail'
-  address = Mail::Address.new "support@knoda.com"
-  address.display_name = "Knoda"    
-  default from: address.format
+class InvitationMailer < MandrillMailer::TemplateMailer
+  default from: 'support@knoda.com'
 
-  # Subject can be set in your I18n file at config/locales/en.yml
-  # with the following lookup:
-  #
-  #   en.user_mailer.signup.subject
-  #
-  def existing_user(invitation)
-    @invitation = invitation
-    user = User.find(invitation.recipient_user_id)
-    mail to: user.email, from: invitation.user.email
+  def inv(invitation)
+    user = invitation.user
+    to = ''
+    if invitation.recipient_email
+      to = invitation.recipient_email
+    else
+      to = User.find(invitation.recipient_user_id).email
+    end
+    mandrill_mail template: 'group-invitation',
+      to: {email: to},
+      vars: {
+        'USERNAME' => invitation.user.username,
+        'GROUPNAME' => invitation.group.name,
+        'JOIN_URL' => "#{invitation.invitation_link}"
+      },
+      important: true,
+      inline_css: true    
   end
-
-  def new_user(invitation)
-    @invitation = invitation
-    mail to: invitation.recipient_email, from: invitation.user.email
-  end  
 end
