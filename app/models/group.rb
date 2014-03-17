@@ -3,6 +3,7 @@ class Group < ActiveRecord::Base
   include CroppableAvatar
   self.authorizer_name = 'GroupAuthorizer'
 
+  has_many :predictions
   has_many :memberships
   has_many :users, through: :memberships
   has_attached_file :avatar, :styles => { :big => "344х344>", :small => "100x100>"}

@@ -9,6 +9,7 @@ class Prediction < ActiveRecord::Base
   after_create :shortenUrl if Rails.env.production?
 
   belongs_to :user, inverse_of: :predictions
+  belongs_to :group, inverse_of: :predictions
   
   has_many :challenges, inverse_of: :prediction, :dependent => :destroy
   has_many :voters, through: :challenges, class_name: "User", source: 'user'
