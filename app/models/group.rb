@@ -1,5 +1,6 @@
 class Group < ActiveRecord::Base
   include Authority::Abilities
+  include CroppableAvatar
   self.authorizer_name = 'GroupAuthorizer'
 
   has_many :memberships
@@ -25,7 +26,7 @@ class Group < ActiveRecord::Base
 
   def owned_by?(user)
     return self.memberships.where(:user => user, :role => 'OWNER').size > 0
-  end  
+  end     
 
   def self.weeklyLeaderboard(group)
     leaderboard(group, 8.days.ago)
