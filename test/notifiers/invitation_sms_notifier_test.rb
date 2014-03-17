@@ -16,6 +16,5 @@ class InvitationSmsNotifierTest < ActionView::TestCase
     invitationLink = 'http://www.knoda.com/groups/join?code=I1A4X82'
     m = InvitationSmsNotifier.message(senderName, groupName, invitationLink)
     assert m.length < 160
-    puts m
   end  
 end

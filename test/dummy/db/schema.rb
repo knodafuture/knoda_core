@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140310205004) do
+ActiveRecord::Schema.define(version: 20140317201948) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,8 +23,11 @@ ActiveRecord::Schema.define(version: 20140310205004) do
     t.string   "activity_type"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "seen",            default: false
+    t.boolean  "seen",                  default: false
     t.text     "title"
+    t.text     "invitation_code"
+    t.text     "invitation_sender"
+    t.text     "invitation_group_name"
   end
 
   add_index "activities", ["user_id"], name: "index_activities_on_user_id", using: :btree
