@@ -49,7 +49,7 @@ class Group < ActiveRecord::Base
       i = 0
       users.each do |u|
         i = i + 1
-        leaders << {:rank => i, :rankText => "#{i.ordinalize} of #{users.size}", :user_id => u.id, :username => u.username, :avatar_image => u.avatar_image, :won => u.group_won(group.id, 8.days.ago), :lost => u.group_lost(group.id, 8.days.ago)}
+        leaders << {:rank => i, :rankText => "#{i.ordinalize} of #{users.size}", :user_id => u.id, :username => u.username, :avatar_image => u.avatar_image, :won => u.group_won(group.id, 8.days.ago), :lost => u.group_lost(group.id, 8.days.ago), :verified_account => u.verified_account}
       end
       return leaders      
     end
