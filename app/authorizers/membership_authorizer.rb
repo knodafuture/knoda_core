@@ -8,7 +8,6 @@ class MembershipAuthorizer < ApplicationAuthorizer
   end
 
   def deletable_by?(user)
-    puts 'AUTHORIZER'
     return Membership.where(:user => user, :group => resource.group, :role => 'OWNER').size > 0
   end
 end
