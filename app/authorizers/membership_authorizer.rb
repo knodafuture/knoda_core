@@ -8,6 +8,8 @@ class MembershipAuthorizer < ApplicationAuthorizer
   end
 
   def deletable_by?(user)
-    return Membership.where(:user => user, :group => resource.group, :role => 'OWNER').size > 0
+    isOwner =  Membership.where(:user => user, :group => resource.group, :role => 'OWNER').size > 0
+    isDeletingSelf = Membership.where(:user => user, :id => resource.id, :role => 'MEMBER').size > 0
+    return (isOwner or isDeletingSelf)
   end
 end
