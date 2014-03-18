@@ -1,6 +1,6 @@
 class GroupAuthorizer < ApplicationAuthorizer
-  def self.readable_by?(user)
-    true
+  def readable_by?(user)
+    return Membership.where(:user => user, :group => resource).size > 0
   end
 
   def updatable_by?(user)

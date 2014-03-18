@@ -25,9 +25,24 @@ class Group < ActiveRecord::Base
     end
   end
 
+  def shortenUrl
+    if Rails.env.production?
+      bitly = Bitly.new('adamnengland','R_098b05120c29c43ad74c6b6a0e7fcf64')
+      page_url = bitly.shorten("#{Rails.application.config.knoda_web_url}/groups/join?id=#{self.id}")
+      self.share_url = page_url.short_url
+    else
+      self.share_url = "#{Rails.application.config.knoda_web_url}/groups/join?id=#{self.id}"
+    end
+    self.save()    
+  end
+
   def owned_by?(user)
     return self.memberships.where(:user => user, :role => 'OWNER').size > 0
   end     
+
+  def owner
+    return self.memberships.where(:role => 'OWNER').first.user
+  end
 
   def self.weeklyLeaderboard(group)
     leaderboard(group, 8.days.ago)
