@@ -9,6 +9,8 @@ class Group < ActiveRecord::Base
   has_attached_file :avatar, :styles => { :big => "344х344>", :small => "100x100>"}
 
   validates_presence_of   :name
+  validates_length_of :name, maximum: 30
+  validates_length_of :description, maximum: 140
 
   def avatar_image
     if self.avatar.exists?
