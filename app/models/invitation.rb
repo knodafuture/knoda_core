@@ -1,8 +1,8 @@
 class Invitation < ActiveRecord::Base
   belongs_to :user
   belongs_to :group
+  before_create :clean_data
   after_create :generate_code
-  #after_create :send_invite
 
   scope :unnotified, -> {where('notified_at is null')}
 
@@ -24,6 +24,16 @@ class Invitation < ActiveRecord::Base
   end          
 
   private
+    def clean_data
+      puts self.recipient_phone
+      if self.recipient_phone
+        self.recipient_phone.gsub!('(', '')
+        self.recipient_phone.gsub!(')', '')
+        self.recipient_phone.gsub!(' ', '')
+        self.recipient_phone.gsub!('-', '')
+      end
+    end
+
     def generate_code
       last4 = Time.now.strftime('%Y%m%d%H%M%S%L')[-4,4]
       code = "I"
