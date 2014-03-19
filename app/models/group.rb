@@ -1,3 +1,4 @@
+require 'digest/sha1'
 class Group < ActiveRecord::Base
   include Authority::Abilities
   include CroppableAvatar
@@ -11,6 +12,8 @@ class Group < ActiveRecord::Base
   validates_presence_of   :name
   validates_length_of :name, maximum: 30
   validates_length_of :description, maximum: 140
+
+  after_create :shortenUrl
 
   def avatar_image
     if self.avatar.exists?
@@ -28,12 +31,13 @@ class Group < ActiveRecord::Base
   end
 
   def shortenUrl
+    hashedId = Digest::SHA1.new << self.id.to_s
     if Rails.env.production?
       bitly = Bitly.new('adamnengland','R_098b05120c29c43ad74c6b6a0e7fcf64')
-      page_url = bitly.shorten("#{Rails.application.config.knoda_web_url}/groups/join?id=#{self.id}")
+      page_url = bitly.shorten("#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}")
       self.share_url = page_url.short_url
     else
-      self.share_url = "#{Rails.application.config.knoda_web_url}/groups/join?id=#{self.id}"
+      self.share_url = "#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}"
     end
     self.save()    
   end
