@@ -2,7 +2,6 @@ class Activity < ActiveRecord::Base
   belongs_to :user
 
   validates :user_id, presence: true
-  validates :title, presence: true
   validates :activity_type, presence: true
 
   validate :prediction_or_invitation
