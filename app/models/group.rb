@@ -15,21 +15,6 @@ class Group < ActiveRecord::Base
 
   after_create :shortenUrl
 
-  def avatar_image
-    if self.avatar.exists?
-      {
-        big: self.avatar(:big),
-        small: self.avatar(:small),
-        thumb: self.avatar(:thumb)
-      }
-    else
-      {
-        big: "http://placehold.it/344x344",
-        small: "http://placehold.it/100x100"
-      }
-    end
-  end
-
   def shortenUrl
     hashedId = Digest::SHA1.new << self.id.to_s
     if Rails.env.production?

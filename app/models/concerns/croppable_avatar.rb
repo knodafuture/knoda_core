@@ -5,4 +5,15 @@ module CroppableAvatar extend ActiveSupport::Concern
 
   module ClassMethods
   end
+  
+  def avatar_image
+    if self.avatar.exists?
+      {
+        big: self.avatar(:big),
+        small: self.avatar(:small)
+      }
+    else
+      nil
+    end
+  end  
 end  

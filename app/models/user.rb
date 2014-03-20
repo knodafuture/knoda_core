@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
   searchkick text_start: [:username]  
   include Authority::UserAbilities
+  include CroppableAvatar
   
   after_create :registration_badges
   after_create :send_signup_email
@@ -20,7 +21,6 @@ class User < ActiveRecord::Base
   has_many :groups, through: :memberships  
   has_many :invitations
   has_many :referrals
-
   
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
@@ -32,11 +32,7 @@ class User < ActiveRecord::Base
          
   validates_presence_of   :username
   validates_uniqueness_of :username, :case_sensitive => false
-
-
   validates_format_of     :username, :with => /\A[a-zA-Z0-9_]{1,15}\z/
-  
-  has_attached_file :avatar, :styles => { :big => "344х344>", :small => "100x100>"}
   
   attr_accessor :login
   
@@ -57,18 +53,6 @@ class User < ActiveRecord::Base
   def lost
     r = self.challenges.select { |c| c.is_finished == true and c.is_right == false}
     r.length    
-  end
-  
-  def avatar_image
-    if self.avatar.exists?
-      {
-        big: self.avatar(:big),
-        small: self.avatar(:small),
-        thumb: self.avatar(:thumb)
-      }
-    else
-      nil
-    end
   end
 
   def winning_percentage    
@@ -191,7 +175,15 @@ class User < ActiveRecord::Base
     if self.streak < 0
       return "L#{self.streak.abs}"
     end
-  end   
+  end  
+
+  def to_param
+    username
+  end  
+
+  def remember_me
+    true
+  end     
 
   def group_won(group_id, max_time)
     r = self.challenges.includes(:prediction).select { |c| c.prediction.group_id == group_id and c.is_finished == true and c.is_right == true and c.updated_at > max_time}
@@ -203,4 +195,9 @@ class User < ActiveRecord::Base
     r = self.challenges.includes(:prediction).select { |c| c.prediction.group_id == group_id and c.is_finished == true and c.is_right == false and c.updated_at > max_time}
     r.length        
   end    
+
+  def member_of(group)
+    self.memberships.where(:group => group).size > 0
+    return true
+  end  
 end
