@@ -7,7 +7,6 @@ class Group < ActiveRecord::Base
   has_many :predictions
   has_many :memberships
   has_many :users, through: :memberships
-  has_attached_file :avatar, :styles => { :big => "344х344>", :small => "100x100>"}
 
   validates_presence_of   :name
   validates_length_of :name, maximum: 30
