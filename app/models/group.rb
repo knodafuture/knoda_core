@@ -17,6 +17,7 @@ class Group < ActiveRecord::Base
 
   def shortenUrl
     hashedId = Digest::SHA1.new << self.id.to_s
+    self.share_id = hashedId
     if Rails.env.production?
       bitly = Bitly.new('adamnengland','R_098b05120c29c43ad74c6b6a0e7fcf64')
       page_url = bitly.shorten("#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}")
