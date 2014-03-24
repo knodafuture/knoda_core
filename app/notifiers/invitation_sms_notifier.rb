@@ -11,7 +11,6 @@ class InvitationSmsNotifier
     sms = @client.account.sms.messages.create(:body => msg,
         :to => invitation.recipient_phone,
         :from => Rails.application.config.twilio[:from])
-    puts sms.sid    
   end
 
   def self.message(senderName, groupName, invitationLink)

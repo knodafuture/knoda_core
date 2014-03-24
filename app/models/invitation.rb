@@ -11,16 +11,21 @@ class Invitation < ActiveRecord::Base
   end
 
   def send_invite
-    if (self.recipient_user_id)
-      InvitationMailer.inv(self).deliver
-      InvitationPushNotifier.deliver(self)
-      InvitationActivityNotifier.deliver(self)
-    elsif (self.recipient_email)
-      InvitationMailer.inv(self).deliver
-    elsif (self.recipient_phone)
-      InvitationSmsNotifier.deliver(self)
-    end      
-    self.update(:notified_at => DateTime.now)
+    begin
+      if (self.recipient_user_id and self.recipient_user_id > 0)
+        InvitationMailer.inv(self).deliver
+        InvitationPushNotifier.deliver(self)
+        InvitationActivityNotifier.deliver(self)
+      elsif (self.recipient_email)
+        InvitationMailer.inv(self).deliver
+      elsif (self.recipient_phone)
+        InvitationSmsNotifier.deliver(self)
+      end      
+    rescue
+      puts 'Exception raised sending invitation'
+    else
+      self.update(:notified_at => DateTime.now)
+    end
   end          
 
   private
