@@ -36,7 +36,13 @@ class Group < ActiveRecord::Base
   end
 
   def self.weeklyLeaderboard(group)
-    leaderboard(group, 8.days.ago)
+    if Rails.cache.exist?("group_leaderboard_weekly_#{group.id}")
+      return Rails.cache.read("group_leaderboard_weekly_#{group.id}")
+    else
+      lb = leaderboard(group, 8.days.ago)
+      Rails.cache.write("group_leaderboard_weekly_#{group.id}", lb, timeToLive: 60.minutes)
+      return lb
+    end    
   end
 
   def self.monthlyLeaderboard(group)
