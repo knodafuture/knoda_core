@@ -5,6 +5,10 @@ module CroppableAvatar extend ActiveSupport::Concern
 
   module ClassMethods
   end
+
+  def avatar_from_path(path)
+    self.avatar = File.open(path)
+  end       
   
   def avatar_image
     if self.avatar.exists?
