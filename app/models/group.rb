@@ -37,6 +37,11 @@ class Group < ActiveRecord::Base
     return self.memberships.where(:role => 'OWNER').first.user
   end
 
+  def self.rebuildLeaderboards(group)
+    lb = leaderboard(group, 8.days.ago)
+    Rails.cache.write("group_leaderboard_weekly_#{group.id}", lb, timeToLive: 7.days)
+  end    
+
   def self.weeklyLeaderboard(group)
     if Rails.cache.exist?("group_leaderboard_weekly_#{group.id}")
       return Rails.cache.read("group_leaderboard_weekly_#{group.id}")
