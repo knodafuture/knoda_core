@@ -16,6 +16,7 @@ class Group < ActiveRecord::Base
 
   default_scope order('name ASC')
   scope :id_lt, -> (i) {where('groups.id < ?', i) if i}
+  scope :alphabetical, -> {order('name ASC')}
   
   def shortenUrl
     hashedId = Digest::SHA1.new << self.id.to_s
