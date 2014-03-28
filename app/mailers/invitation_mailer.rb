@@ -10,6 +10,7 @@ class InvitationMailer < MandrillMailer::TemplateMailer
       to = User.find(invitation.recipient_user_id).email
     end
     mandrill_mail template: 'group-invitation',
+      from_name: 'Knoda',
       to: {email: to},
       vars: {
         'USERNAME' => invitation.user.username,
