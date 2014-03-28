@@ -3,6 +3,7 @@ class Invitation < ActiveRecord::Base
   belongs_to :group
   before_create :clean_data
   after_create :generate_code
+  after_create :send_invite_activity
 
   scope :unnotified, -> {where('notified_at is null')}
 
@@ -17,7 +18,6 @@ class Invitation < ActiveRecord::Base
       if (self.recipient_user_id and self.recipient_user_id > 0)
         InvitationMailer.inv(self).deliver
         InvitationPushNotifier.deliver(self)
-        InvitationActivityNotifier.deliver(self)
       elsif (self.recipient_email)
         InvitationMailer.inv(self).deliver
       elsif (self.recipient_phone)
@@ -29,6 +29,12 @@ class Invitation < ActiveRecord::Base
       self.update(:notified_at => DateTime.now)
     end
   end          
+
+  def send_invite_activity
+    if (self.recipient_user_id and self.recipient_user_id > 0)
+      InvitationActivityNotifier.deliver(self)
+    end
+  end
 
   private
     def clean_data
