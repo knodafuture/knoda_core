@@ -196,6 +196,6 @@ class User < ActiveRecord::Base
   end    
 
   def member_of(group)
-    return self.memberships.where(:group_id => group_id).size > 0
+    return self.memberships.where(:group_id => group.id).size > 0
   end  
 end
