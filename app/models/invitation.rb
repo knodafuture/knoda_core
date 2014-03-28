@@ -7,7 +7,7 @@ class Invitation < ActiveRecord::Base
 
   scope :unnotified, -> {where('notified_at is null')}
 
-  validates_format_of :recipient_email, :with => /.+@.+\..+/i
+  validates_format_of :recipient_email, :with => /.+@.+\..+/i, :allow_nil => true
 
   def invitation_link
     "#{Rails.application.config.knoda_web_url}/groups/join?code=#{self.code}"
