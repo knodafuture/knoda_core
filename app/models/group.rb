@@ -40,9 +40,10 @@ class Group < ActiveRecord::Base
   end
 
   def self.rebuildLeaderboards(group)
-    lb = leaderboard(group, 8.days.ago)
-    Rails.cache.write("group_leaderboard_weekly_#{group.id}", lb, timeToLive: 7.days)
-  end    
+    Rails.cache.write("group_leaderboard_weekly_#{group.id}", leaderboard(group, 8.days.ago), timeToLive: 7.days)
+    Rails.cache.write("group_leaderboard_monthly_#{group.id}", leaderboard(group, 1.month.ago), timeToLive: 7.days)
+    Rails.cache.write("group_leaderboard_alltime_#{group.id}", leaderboard(group, 5.years.ago), timeToLive: 7.days)
+  end
 
   def self.weeklyLeaderboard(group)
     if Rails.cache.exist?("group_leaderboard_weekly_#{group.id}")
@@ -55,11 +56,23 @@ class Group < ActiveRecord::Base
   end
 
   def self.monthlyLeaderboard(group)
-    leaderboard(group, 1.month.ago)
+    if Rails.cache.exist?("group_leaderboard_monthly_#{group.id}")
+      return Rails.cache.read("group_leaderboard_monthly_#{group.id}")
+    else
+      lb = leaderboard(group, 1.month.ago)
+      Rails.cache.write("group_leaderboard_monthly_#{group.id}", lb, timeToLive: 7.days)
+      return lb
+    end        
   end 
 
   def self.allTimeLeaderboard(group)
-    leaderboard(group, 5.years.ago)
+    if Rails.cache.exist?("group_leaderboard_alltime_#{group.id}")
+      return Rails.cache.read("group_leaderboard_alltime_#{group.id}")
+    else
+      lb = leaderboard(group, 5.years.ago)
+      Rails.cache.write("group_leaderboard_alltime_#{group.id}", lb, timeToLive: 7.days)
+      return lb
+    end          
   end   
 
   private
