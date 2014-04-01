@@ -1,6 +1,6 @@
 module CroppableAvatar extend ActiveSupport::Concern
   included do
-    has_attached_file :avatar, :styles => { :big => "344х344>", :small => "100x100>"}, :default_url => ""
+    has_attached_file :avatar, :styles => { :big => "344х344>", :small => "100x100>", :thumb => "40x40"}, :default_url => ""
   end
 
   module ClassMethods
@@ -15,6 +15,7 @@ module CroppableAvatar extend ActiveSupport::Concern
       {
         big: self.avatar(:big),
         small: self.avatar(:small)
+        thumb: self.avatar(:thumb)
       }
     else
       nil
