@@ -14,7 +14,7 @@ module CroppableAvatar extend ActiveSupport::Concern
     if self.avatar.exists?
       {
         big: self.avatar(:big),
-        small: self.avatar(:small)
+        small: self.avatar(:small),
         thumb: self.avatar(:thumb)
       }
     else
