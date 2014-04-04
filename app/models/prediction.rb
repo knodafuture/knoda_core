@@ -106,10 +106,8 @@ class Prediction < ActiveRecord::Base
   
   def close_as(outcome)
     if self.update({outcome: outcome, is_closed: true, closed_at: Time.now})
-      self.user.outcome_badges
       self.challenges.each do |c|
         c.close
-      Activity.where(user_id: self.user.id, prediction_id: self.id, activity_type: 'EXPIRED').delete_all
       end
       true
     else
@@ -151,6 +149,13 @@ class Prediction < ActiveRecord::Base
 
   def is_ready_for_resolution?
     resolution_date.past?
+  end   
+
+  def after_close
+    if self.errors.size == 0
+      self.user.outcome_badges
+      Activity.where(user_id: self.user.id, prediction_id: self.id, activity_type: 'EXPIRED').delete_all
+    end
   end   
 
   private
@@ -210,5 +215,5 @@ class Prediction < ActiveRecord::Base
         body: body,
         tags: tags
       }
-  end     
+  end    
 end
