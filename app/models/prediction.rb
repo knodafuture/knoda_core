@@ -155,6 +155,9 @@ class Prediction < ActiveRecord::Base
     if self.errors.size == 0
       self.user.outcome_badges
       Activity.where(user_id: self.user.id, prediction_id: self.id, activity_type: 'EXPIRED').delete_all
+      if self.group
+        Group.rebuildLeaderboards(self.group)
+      end      
     end
   end   
 
