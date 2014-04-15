@@ -21,13 +21,14 @@ class User < ActiveRecord::Base
   has_many :groups, through: :memberships  
   has_many :invitations
   has_many :referrals
-  
+  has_many :social_accounts
+
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
   # :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
-         :token_authenticatable,
+         :token_authenticatable, :omniauthable,
          :authentication_keys => [:login]
          
   validates_presence_of   :username
@@ -35,6 +36,10 @@ class User < ActiveRecord::Base
   validates_format_of     :username, :with => /\A[a-zA-Z0-9_]{1,15}\z/
   
   attr_accessor :login
+
+  def self.username_length
+    return 15
+  end
   
   def self.find_first_by_auth_conditions(warden_conditions)
     conditions = warden_conditions.dup
@@ -198,4 +203,76 @@ class User < ActiveRecord::Base
   def member_of(group)
     return self.memberships.where(:group_id => group.id).size > 0
   end  
+
+  def email_required?
+    !self.social_accounts
+  end
+
+  def twitter_account
+    return SocialAccount.where(:provider_name => "twitter").first
+  end
+
+  def facebook_account
+    return SocialAccount.where(:provider_name => "facebook").first
+  end
+
+
+  def self.find_or_create_from_social(social_params) 
+    account = SocialAccount.where(:provider_name => social_params[:provider_name], :provider_id => social_params[:provider_id]).first
+    if account and account.user
+      account.access_token = social_params[:access_token]
+      account.access_token_secret = social_params[:access_token_secret]
+      account.save()
+      return account.user
+    end
+
+    user = User.new
+    user.username = sanitize_new_username(social_params[:username])
+    if social_params[:email]
+      user.email = social_params[:email]
+    else
+      user.email = nil
+    end
+    user.password = Devise.friendly_token[0,6]
+    user.avatar = user.avatar_from_url social_params[:image]
+
+    user.save
+    unless user.errors.empty?
+      puts user.errors.to_json
+      return user
+    end
+
+    account = SocialAccount.new
+    account.provider_name = social_params[:provider_name]
+    account.provider_id = social_params[:provider_id]
+    account.access_token = social_params[:access_token]
+    account.access_token_secret = social_params[:access_token_secret]
+    account.provider_account_name = social_params[:provider_account_name]
+    account.user = user
+    account.save!
+
+    return user
+
+  end
+
+  def self.sanitize_new_username(username)
+    users = User.where("username like ?", username + "%")
+    if username.length < User.username_length and not users
+      return user
+    end
+
+    if username.length > User.username_length
+      username = username[0..User.username_length-1]
+    end
+
+    if users.size > 0
+      if username.length + users.size.to_s.length > User.username_length
+        username = username[0..username.length - users.size.to_s.length - 1] + users.size.to_s
+      else
+        username = username += users.size.to_s
+      end
+    end
+
+    return username
+  end
 end

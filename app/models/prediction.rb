@@ -6,7 +6,7 @@ class Prediction < ActiveRecord::Base
   
   after_create :prediction_create_badges
   after_create :create_own_challenge
-  after_create :shortenUrl if Rails.env.production?
+  after_create :shortenUrl
 
   belongs_to :user, inverse_of: :predictions
   belongs_to :group, inverse_of: :predictions
@@ -41,6 +41,8 @@ class Prediction < ActiveRecord::Base
   scope :notAlerted, -> {where('activity_sent_at is null')}
   scope :for_group, -> (i) {where('group_id = ?', i) if i}
   scope :visible_to_user, -> (i) {where('group_id is null or group_id in (Select group_id from memberships where user_id = ?)', i) if i}
+
+
 
   def disagreed_count
     d = self.challenges.select { |c| c.agree == false}
@@ -207,12 +209,15 @@ class Prediction < ActiveRecord::Base
   end
 
   def shortenUrl
-    bitly = Bitly.new('adamnengland','R_098b05120c29c43ad74c6b6a0e7fcf64')
-    page_url = bitly.shorten("#{Rails.application.config.knoda_web_url}/predictions/#{self.id}/share")
-    self.short_url = page_url.short_url
+    if Rails.env.production?
+      bitly = Bitly.new('adamnengland','R_098b05120c29c43ad74c6b6a0e7fcf64')
+      page_url = bitly.shorten("#{Rails.application.config.knoda_web_url}/predictions/#{self.id}/share")
+      self.short_url = page_url.short_url
+    else
+      self.short_url = "#{Rails.application.config.knoda_web_url}/predictions/#{self.id}/share"
+    end
     self.save()
   end
-
   def search_data
       {
         body: body,

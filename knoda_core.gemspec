@@ -25,4 +25,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'twilio-ruby'
   s.add_dependency 'mandrill_mailer'
   s.add_dependency 'mailchimp-api'
+  s.add_dependency 'omniauth-twitter'
+  s.add_dependency 'open_uri_redirections'
+  s.add_development_dependency "sqlite3"
 end
