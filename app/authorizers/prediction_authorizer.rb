@@ -3,6 +3,10 @@ class PredictionAuthorizer < ApplicationAuthorizer
     true
   end
 
+  def self.readable_by?(user)
+    true
+  end
+
   def readable_by?(user)
     if resource.group
       return ((Membership.where(:user => user, :group => resource.group).size > 0) or (Challenge.where(:user => user, :prediction => resource).size > 0))
