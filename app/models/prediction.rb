@@ -13,7 +13,7 @@ class Prediction < ActiveRecord::Base
   
   has_many :challenges, inverse_of: :prediction, :dependent => :destroy
   has_many :voters, through: :challenges, class_name: "User", source: 'user'
-  has_many :comments, inverse_of: :prediction, :dependent => :destroy, :order => 'created_at ASC'
+  has_many :comments, -> { order('created_at ASC') }, inverse_of: :prediction, :dependent => :destroy
 
   validates :body, presence: true
   validates :expires_at, presence: true
@@ -29,7 +29,7 @@ class Prediction < ActiveRecord::Base
   attr_accessor :in_bs
 
   scope :recent, -> {where("predictions.expires_at >= now()")}
-  scope :expiring, lambda { { :conditions => ["predictions.expires_at >= now()"], :order => "predictions.expires_at ASC" } }
+  scope :expiring, -> { where("predictions.expires_at >= now()").order("predictions.expires_at ASC") }
   
   scope :latest, -> { order('created_at DESC') }
   

@@ -10,7 +10,7 @@ class Comment < ActiveRecord::Base
   include Authority::Abilities
   self.authorizer_name = 'CommentAuthorizer'
 
-  scope :recent, lambda {{ :order => "comments.created_at DESC" } }
+  scope :recent, -> { order("comments.created_at DESC") }
   scope :id_lt, -> (i) {where('comments.id < ?', i) if i}
   scope :id_gt, -> (i) {where('comments.id > ?', i) if i}
 

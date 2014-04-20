@@ -14,7 +14,7 @@ class Group < ActiveRecord::Base
 
   after_create :shortenUrl
 
-  default_scope order('name ASC')
+  default_scope {order('name ASC')}
   scope :id_lt, -> (i) {where('groups.id < ?', i) if i}
   scope :alphabetical, -> {order('name ASC')}
   
