@@ -78,7 +78,7 @@ class Group < ActiveRecord::Base
   private
     def self.leaderboard(group, max_age)
       users = group.users
-      users = users.sort!{|u1,u2| u2.group_won(group.id, max_age) <=> u1.group_won(group.id, max_age)}
+      users = users.to_a.sort!{|u1,u2| u2.group_won(group.id, max_age) <=> u1.group_won(group.id, max_age)}
       leaders = []
       i = 0
       users.each do |u|
