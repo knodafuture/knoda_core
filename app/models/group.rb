@@ -1,4 +1,5 @@
 require 'digest/sha1'
+require 'owly'
 class Group < ActiveRecord::Base
   include Authority::Abilities
   include CroppableAvatar
@@ -22,9 +23,7 @@ class Group < ActiveRecord::Base
     hashedId = Digest::SHA1.new << self.id.to_s
     self.share_id = hashedId.to_s
     if Rails.env.production?
-      bitly = Bitly.new('adamnengland','R_098b05120c29c43ad74c6b6a0e7fcf64')
-      page_url = bitly.shorten("#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}")
-      self.share_url = page_url.short_url
+      self.short_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", "#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}")      
     else
       self.share_url = "#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}"
     end
