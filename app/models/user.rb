@@ -209,11 +209,11 @@ class User < ActiveRecord::Base
   end
 
   def twitter_account
-    return SocialAccount.where(:provider_name => "twitter").first
+    return social_accounts.where(:provider_name => "twitter").first
   end
 
   def facebook_account
-    return SocialAccount.where(:provider_name => "facebook").first
+    return social_accounts.where(:provider_name => "facebook").first
   end
 
 
