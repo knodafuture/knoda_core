@@ -161,6 +161,13 @@ class Prediction < ActiveRecord::Base
     end
   end   
 
+  def search_data
+    {
+      body: body,
+      tags: tags
+    }
+  end  
+
   private
   
   def is_not_settled
@@ -212,11 +219,4 @@ class Prediction < ActiveRecord::Base
     self.short_url = page_url.short_url
     self.save()
   end
-
-  def search_data
-      {
-        body: body,
-        tags: tags
-      }
-  end    
 end
