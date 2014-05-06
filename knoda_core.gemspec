@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir["test/**/*"]
   s.add_dependency "rails", "~> 4.1.0"
   s.add_dependency 'pg', '0.17.1'
-  s.add_dependency 'owly', '0.0.1'
+  s.add_dependency 'owly', '0.0.2'
   s.add_dependency 'devise', '3.0.0.rc'
   s.add_dependency 'paperclip', '4.1.1'
   s.add_dependency 'aws-sdk', '1.38.0'
