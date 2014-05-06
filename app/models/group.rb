@@ -23,7 +23,7 @@ class Group < ActiveRecord::Base
     hashedId = Digest::SHA1.new << self.id.to_s
     self.share_id = hashedId.to_s
     if Rails.env.production?
-      self.short_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", "#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}", {:base_url => "http://knoda.co"})      
+      self.share_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", "#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}", {:base_url => "http://knoda.co"})      
     else
       self.share_url = "#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}"
     end
