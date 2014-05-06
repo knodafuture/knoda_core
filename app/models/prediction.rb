@@ -1,3 +1,4 @@
+require 'owly'
 class Prediction < ActiveRecord::Base
   searchkick
   
@@ -217,9 +218,7 @@ class Prediction < ActiveRecord::Base
 
   def shortenUrl
     if Rails.env.production?
-      bitly = Bitly.new('adamnengland','R_098b05120c29c43ad74c6b6a0e7fcf64')
-      page_url = bitly.shorten("#{Rails.application.config.knoda_web_url}/predictions/#{self.id}/share")
-      self.short_url = page_url.short_url
+      self.short_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", "#{Rails.application.config.knoda_web_url}/predictions/#{self.id}/share", {:base_url => "http://knoda.co"})
     else
       self.short_url = "#{Rails.application.config.knoda_web_url}/predictions/#{self.id}/share"
     end
