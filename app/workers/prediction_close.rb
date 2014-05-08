@@ -1,6 +1,5 @@
 class PredictionClose
   include Sidekiq::Worker
-  @queue = :prediction_close
 
   def perform(prediction_id)
     puts "PERFORM PREDICTION CLOSE"
