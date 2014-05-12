@@ -8,8 +8,6 @@ module PredictionImageBuilder extend ActiveSupport::Concern
 	end
 
 	def build_image
-		puts "BUILD IMAGE"
-		puts self.to_json
 		html = render(:template => 'prediction-screenshot.html.erb', :layout => false, :locals => {prediction: self})
 		kit = IMGKit.new(html, :height => 640, :width => 640, :quality => 100)
 		img = kit.to_img(:jpg)
