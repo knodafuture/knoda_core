@@ -9,6 +9,9 @@ module PredictionImageBuilder extend ActiveSupport::Concern
 
 	def build_image
 		html = render(:template => 'prediction-screenshot.html.erb', :layout => false, :locals => {prediction: self})
+		File.open(Rails.root + "public/test.html", "w+") do |f|
+  		f.write(html)
+		end
 		kit = IMGKit.new(html, :height => 640, :width => 640, :quality => 100)
 		img = kit.to_img(:jpg)
 		file  = Tempfile.new(["template_#{self.id}", '.jpg'], "#{Rails.root}/tmp", :encoding => 'ascii-8bit')
