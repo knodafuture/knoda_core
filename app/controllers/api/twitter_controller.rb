@@ -13,7 +13,7 @@ class Api::TwitterController < ActionController::Base
 		p = tweet_params
 
 		if p[:prediction_id]
-			TwitterWorker.perform_async(current_user.id,prediction_id)
+			TwitterWorker.perform_async(current_user.id,p[:prediction_id])
 		end
 
 		head :no_content
