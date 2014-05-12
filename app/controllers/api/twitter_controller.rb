@@ -18,4 +18,8 @@ class Api::TwitterController < ActionController::Base
 
 		head :no_content
 	end
+
+	def tweet_params
+  	return params.permit(:prediction_id)
+	end
 end
