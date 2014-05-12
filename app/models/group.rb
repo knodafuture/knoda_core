@@ -18,21 +18,25 @@ class Group < ActiveRecord::Base
   default_scope {order('name ASC')}
   scope :id_lt, -> (i) {where('groups.id < ?', i) if i}
   scope :alphabetical, -> {order('name ASC')}
-  
+
   def shortenUrl
     hashedId = Digest::SHA1.new << self.id.to_s
     self.share_id = hashedId.to_s
+    long_url = "#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}"
     if Rails.env.production?
-      self.share_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", "#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}", {:base_url => "http://knoda.co"})      
+      begin
+        self.share_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", long_url, {:base_url => "http://knoda.co"})
+      rescue
+        self.share_url = long_url
     else
-      self.share_url = "#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}"
+      self.share_url = long_url
     end
-    self.save()    
+    self.save()
   end
 
   def owned_by?(user)
     return self.memberships.where(:user => user, :role => 'OWNER').size > 0
-  end     
+  end
 
   def owner
     return self.memberships.where(:role => 'OWNER').first.user
@@ -51,7 +55,7 @@ class Group < ActiveRecord::Base
       lb = leaderboard(group, 8.days.ago)
       Rails.cache.write("group_leaderboard_weekly_#{group.id}", lb, timeToLive: 7.days)
       return lb
-    end    
+    end
   end
 
   def self.monthlyLeaderboard(group)
@@ -61,8 +65,8 @@ class Group < ActiveRecord::Base
       lb = leaderboard(group, 1.month.ago)
       Rails.cache.write("group_leaderboard_monthly_#{group.id}", lb, timeToLive: 7.days)
       return lb
-    end        
-  end 
+    end
+  end
 
   def self.allTimeLeaderboard(group)
     if Rails.cache.exist?("group_leaderboard_alltime_#{group.id}")
@@ -71,8 +75,8 @@ class Group < ActiveRecord::Base
       lb = leaderboard(group, 5.years.ago)
       Rails.cache.write("group_leaderboard_alltime_#{group.id}", lb, timeToLive: 7.days)
       return lb
-    end          
-  end   
+    end
+  end
 
   private
     def self.leaderboard(group, max_age)
@@ -84,6 +88,6 @@ class Group < ActiveRecord::Base
         i = i + 1
         leaders << {:rank => i, :rankText => "#{i.ordinalize} of #{users.size}", :user_id => u.id, :username => u.username, :avatar_image => u.avatar_image, :won => u.group_won(group.id, max_age), :lost => u.group_lost(group.id, max_age), :verified_account => u.verified_account}
       end
-      return leaders      
+      return leaders
     end
 end

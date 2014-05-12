@@ -223,10 +223,15 @@ class Prediction < ActiveRecord::Base
   end
 
   def shortenUrl
+    long_url = "#{Rails.application.config.knoda_web_url}/predictions/#{self.id}/share"
     if Rails.env.production?
-      self.short_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", "#{Rails.application.config.knoda_web_url}/predictions/#{self.id}/share", {:base_url => "http://knoda.co"})
+      begin
+        self.short_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", long_url, {:base_url => "http://knoda.co"})
+      rescue
+        self.short_url = long_url
+      end
     else
-      self.short_url = "#{Rails.application.config.knoda_web_url}/predictions/#{self.id}/share"
+      self.short_url = long_url
     end
     self.save()
   end
