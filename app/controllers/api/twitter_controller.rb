@@ -13,7 +13,7 @@ class Api::TwitterController < ActionController::Base
 		p = tweet_params
 
 		if p[:prediction_id]
-			TwitterWorker.delay_for(3.seconds).tweet(current_user.id,p[:prediction_id])
+			TwitterWorker.perform_in(3.seconds, current_user.id,p[:prediction_id])
 		end
 
 		head :no_content
