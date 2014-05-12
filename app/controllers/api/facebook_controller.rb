@@ -13,7 +13,7 @@ class Api::FacebookController < ActionController::Base
 		p = post_params
 
 		if p[:prediction_id]
-			FacebookWorker.perform_in(3.seconds, current_user.id,p[:prediction_id])
+			FacebookWorker.perform_in(5.seconds, current_user.id,p[:prediction_id])
 		end
 
 		head :no_content
