@@ -28,6 +28,7 @@ class Group < ActiveRecord::Base
         self.share_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", long_url, {:base_url => "http://knoda.co"})
       rescue
         self.share_url = long_url
+      end
     else
       self.share_url = long_url
     end
