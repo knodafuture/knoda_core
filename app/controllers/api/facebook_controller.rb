@@ -13,12 +13,12 @@ class Api::FacebookController < ActionController::Base
 		p = post_params
 
 		if p[:prediction_id]
-			FacebookWorker.perform_async(current_user.id,prediction.id)
+			FacebookWorker.perform_async(current_user.id,p[:prediction_id])
 		end
 
 		head :no_content
 	end
-	
+
 	def post_params
       params.permit(:prediction_id, :group_id)
     end
