@@ -25,7 +25,7 @@ class TwitterWorker
         config.access_token_secret = account.access_token_secret
       end
 
-      message = trim_message prediction.body, " via @KNODAfuture #{prediction.short_url}"
+      message = trim_message prediction.body, "via @KNODAfuture #{prediction.short_url}"
       client.update(message)
 
     end
@@ -35,9 +35,9 @@ class TwitterWorker
   def trim_message message, suffix
     max = 140 - suffix.length
     if message.length >= max
-      message = message[0..max-2]
+      message = message[0..max-4]
+      return "#{message}... #{suffix}"
     end
-    puts "#{message} #{suffix}"
     return "#{message} #{suffix}"
   end
 end
