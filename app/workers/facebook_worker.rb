@@ -3,7 +3,6 @@ class FacebookWorker
   @queue = :facebook
 
   def perform(user_id, prediction_id)
-    puts "PERFORM FACEBOOK"
     ActiveRecord::Base.connection_pool.with_connection do
       user = User.find(user_id)
       account = user.facebook_account

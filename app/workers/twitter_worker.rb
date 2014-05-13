@@ -3,7 +3,6 @@ class TwitterWorker
   @queue = :twitter
 
   def perform(user_id, prediction_id)
-    puts "PERFORM TWITTER"
     ActiveRecord::Base.connection_pool.with_connection do
       user = User.find(user_id)
       account = user.twitter_account
@@ -27,7 +26,6 @@ class TwitterWorker
 
       message = trim_message prediction.body, "via @KNODAfuture #{prediction.short_url}"
       client.update(message)
-
     end
   end
 
