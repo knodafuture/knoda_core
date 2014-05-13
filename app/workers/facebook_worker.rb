@@ -17,7 +17,7 @@ class FacebookWorker
       end
 
       graph = Koala::Facebook::API.new(account.access_token)
-      graph.put_connections("me", "knodafacebook:share", :prediction => prediction.short_url)
+      graph.put_connections("me", "knodafacebook:share", :prediction => "#{Rails.application.config.knoda_web_url}/predictions/#{prediction_id}/share")
     end
   end
 end
