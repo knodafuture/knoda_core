@@ -1,14 +1,14 @@
 class User < ActiveRecord::Base
-  searchkick text_start: [:username]  
+  searchkick text_start: [:username]
   include Authority::UserAbilities
   include CroppableAvatar
-  
+
   after_create :registration_badges
   after_create :send_signup_email
-  
+
   before_update :send_email_if_username_was_changed
   before_update :send_email_if_email_was_changed
-  
+
   has_many :predictions, inverse_of: :user, :dependent => :destroy
   has_many :challenges, inverse_of: :user, :dependent => :destroy
   has_many :badges, :dependent => :destroy
@@ -18,7 +18,7 @@ class User < ActiveRecord::Base
   has_many :comments, :dependent => :destroy
   has_many :activities, :dependent => :destroy
   has_many :memberships
-  has_many :groups, through: :memberships  
+  has_many :groups, through: :memberships
   has_many :invitations
   has_many :referrals
   has_many :social_accounts
@@ -30,17 +30,17 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable,
          :token_authenticatable, :omniauthable,
          :authentication_keys => [:login]
-         
+
   validates_presence_of   :username
   validates_uniqueness_of :username, :case_sensitive => false
   validates_format_of     :username, :with => /\A[a-zA-Z0-9_]{1,15}\z/
-  
+
   attr_accessor :login
 
   def self.username_length
     return 15
   end
-  
+
   def self.find_first_by_auth_conditions(warden_conditions)
     conditions = warden_conditions.dup
     if login = conditions.delete(:login)
@@ -49,33 +49,33 @@ class User < ActiveRecord::Base
       where(conditions).first
     end
   end
-  
+
   def won
     r = self.challenges.select { |c| c.is_finished == true and c.is_right == true}
     r.length
   end
-  
+
   def lost
     r = self.challenges.select { |c| c.is_finished == true and c.is_right == false}
-    r.length    
+    r.length
   end
 
-  def winning_percentage    
+  def winning_percentage
     if self.won > 0
       (self.won.to_f / (self.won + self.lost) * 100.0).round(2)
     else
       0.00
     end
   end
-  
+
   def update_streak(won)
     if won
       self.streak = (self.streak > 0) ? self.streak+1 : +1
     else
-      self.streak = (self.streak < 0) ? self.streak-1 : -1 
+      self.streak = (self.streak < 0) ? self.streak-1 : -1
     end
   end
-  
+
   def registration_badges
     case self.id
       when 1..500
@@ -86,30 +86,30 @@ class User < ActiveRecord::Base
         self.badges.create(:name => 'silver_founding')
     end
   end
-  
+
   def prediction_create_badges
     case self.predictions.size
       when 1
         # first prediction badge
         self.badges.create(:name => '1_prediction')
       when 10
-        # 10 predictions made 
+        # 10 predictions made
         self.badges.create(:name => '10_predictions')
     end
   end
-  
+
   def challenge_create_badges
     case self.challenges.where(is_own: false).count
       when 1
         self.badges.create(:name => '1_challenge')
     end
   end
-  
+
   def outcome_badges
     # 10 correct predictions badge
     correct_predictions = self.predictions.where(outcome: true).count
     correct_badge = self.badges.where(name: '10_correct_predictions').first
-    
+
     if correct_badge
       if correct_predictions < 10
         correct_badge.delete
@@ -119,7 +119,7 @@ class User < ActiveRecord::Base
         self.badges.create(name: '10_correct_predictions')
       end
     end
-    
+
     # 10 incorrect predictions badge
     incorrect_predictions = self.predictions.where(outcome: false).count
     incorrect_badge = self.badges.where(name: '10_incorrect_predictions').first
@@ -133,29 +133,29 @@ class User < ActiveRecord::Base
       end
     end
   end
-  
+
   def pick(prediction, agree)
     self.challenges.build({
       prediction: prediction,
       agree: agree
     })
   end
-  
+
   def alerts_count
     self.activities.unseen.count
     #self.challenges.notifications.unviewed.count
   end
-  
+
   def send_signup_email
     SignupMailer.signup(self).deliver
   end
-  
+
   def send_email_if_username_was_changed
     if self.username_changed?
       UserMailer.username_was_changed(self).deliver
     end
   end
-  
+
   def send_email_if_email_was_changed
     if self.email_changed?
       UserMailer.email_was_changed(self).deliver
@@ -166,43 +166,43 @@ class User < ActiveRecord::Base
     {
       username: username
     }
-  end 
+  end
 
   def streak_as_text
     if self.streak == 0
       return "W#{0}"
     end
-    
+
     if self.streak > 0
       return "W#{self.streak}"
     end
-    
+
     if self.streak < 0
       return "L#{self.streak.abs}"
     end
-  end  
+  end
 
   def to_param
     username
-  end  
+  end
 
   def remember_me
     true
-  end     
+  end
 
   def group_won(group_id, max_time)
     r = self.challenges.includes(:prediction).select { |c| c.prediction.group_id == group_id and c.is_finished == true and c.is_right == true and c.prediction.closed_at > max_time}
-    r.length        
+    r.length
   end
 
   def group_lost(group_id, max_time)
     r = self.challenges.includes(:prediction).select { |c| c.prediction.group_id == group_id and c.is_finished == true and c.is_right == false and c.prediction.closed_at > max_time}
-    r.length        
-  end    
+    r.length
+  end
 
   def member_of(group)
     return self.memberships.where(:group_id => group.id).size > 0
-  end  
+  end
 
   def email_required?
     !self.social_accounts
@@ -217,7 +217,7 @@ class User < ActiveRecord::Base
   end
 
 
-  def self.find_or_create_from_social(social_params) 
+  def self.find_or_create_from_social(social_params)
     account = SocialAccount.where(:provider_name => social_params[:provider_name], :provider_id => social_params[:provider_id]).first
     if account and account.user
       account.access_token = social_params[:access_token]
@@ -256,23 +256,20 @@ class User < ActiveRecord::Base
   end
 
   def self.sanitize_new_username(username)
-    users = User.where("username like ?", username + "%")
+    users = User.where("username ilike ?", username + "%")
     if username.length < User.username_length and not users
-      return user
+      return username
     end
 
     if username.length > User.username_length
       username = username[0..User.username_length-1]
+      return sanitze_new_username(username)
     end
-
+    puts users.to_json
     if users.size > 0
-      if username.length + users.size.to_s.length > User.username_length
-        username = username[0..username.length - users.size.to_s.length - 1] + users.size.to_s
-      else
         username = username += users.size.to_s
-      end
+        return sanitize_new_username(username)
     end
-
     return username
   end
 end

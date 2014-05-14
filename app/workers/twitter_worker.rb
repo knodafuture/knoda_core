@@ -33,7 +33,7 @@ class TwitterWorker
   def trim_message message, suffix
     max = 140 - suffix.length
     if message.length >= max
-      message = message[0..max-4]
+      message = message[0..max-5]
       return "#{message}... #{suffix}"
     end
     return "#{message} #{suffix}"
