@@ -11,8 +11,10 @@ class FacebookWorker
         return;
       end
 
-      unless prediction.shareable_image
-        FacebookWorker.perform_async(user_id,prediction_id)
+      s3_object_path = prediction.shareable_image.path
+      s3_object_path[0] = ''
+      unless prediction.shareable_image && AWS::S3.new.buckets[ENV['S3_BUCKET_NAME']].objects[s3_object_path].exists?
+        raise "Prediction_Image_Not_Ready"
         return
       end
 
