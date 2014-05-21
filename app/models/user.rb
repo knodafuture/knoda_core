@@ -217,6 +217,23 @@ class User < ActiveRecord::Base
   end
 
 
+  def self.sanitize_new_username(username)
+    users = User.where("username ilike ?", username + "%")
+    if username.length < User.username_length and users.size < 1
+      return username
+    end
+
+    if username.length > User.username_length
+      username = username[0..User.username_length-2]
+      return sanitize_new_username(username)
+    end
+    if users.size > 0
+        username = username += users.size.to_s
+        return sanitize_new_username(username)
+    end
+    return username
+  end
+
   def self.find_or_create_from_social(social_params)
     account = SocialAccount.where(:provider_name => social_params[:provider_name], :provider_id => social_params[:provider_id]).first
     if account and account.user
@@ -253,23 +270,5 @@ class User < ActiveRecord::Base
 
     return user
 
-  end
-
-  def self.sanitize_new_username(username)
-    users = User.where("username ilike ?", username + "%")
-    if username.length < User.username_length and not users
-      return username
-    end
-
-    if username.length > User.username_length
-      username = username[0..User.username_length-1]
-      return sanitze_new_username(username)
-    end
-    puts users.to_json
-    if users.size > 0
-        username = username += users.size.to_s
-        return sanitize_new_username(username)
-    end
-    return username
   end
 end
