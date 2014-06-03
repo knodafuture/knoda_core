@@ -45,7 +45,13 @@ class Prediction < ActiveRecord::Base
   scope :readyForResolution, -> {where('is_closed is false and resolution_date < now()')}
   scope :notAlerted, -> {where('activity_sent_at is null')}
   scope :for_group, -> (i) {where('group_id = ?', i) if i}
-  scope :visible_to_user, -> (i) {where('group_id is null or group_id in (Select group_id from memberships where user_id = ?)', i) if i}
+  scope :visible_to_user, -> (i) {
+    if i
+      where('group_id is null or group_id in (Select group_id from memberships where user_id = ?)', i)
+    else
+      where('group_id is null')
+    end
+  }
 
   def disagreed_count
     d = self.challenges.select { |c| c.agree == false}
