@@ -172,8 +172,9 @@ class Prediction < ActiveRecord::Base
 
   def search_data
     {
-      body: body,
-      tags: tags
+        body: body,
+        tags: tags,
+        challenge_count: Math.log(challenges.size,2)
     }
   end
 

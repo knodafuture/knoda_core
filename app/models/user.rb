@@ -1,3 +1,4 @@
+require 'searchkick'
 class User < ActiveRecord::Base
   searchkick text_start: [:username]
   include Authority::UserAbilities
@@ -79,10 +80,8 @@ class User < ActiveRecord::Base
   def registration_badges
     case self.id
       when 1..500
-        # Gold founding user badge
         self.badges.create(:name => 'gold_founding')
       when 501..5000
-        # Silver founding user badge
         self.badges.create(:name => 'silver_founding')
     end
   end
@@ -90,10 +89,8 @@ class User < ActiveRecord::Base
   def prediction_create_badges
     case self.predictions.size
       when 1
-        # first prediction badge
         self.badges.create(:name => '1_prediction')
       when 10
-        # 10 predictions made
         self.badges.create(:name => '10_predictions')
     end
   end
@@ -143,7 +140,6 @@ class User < ActiveRecord::Base
 
   def alerts_count
     self.activities.unseen.count
-    #self.challenges.notifications.unviewed.count
   end
 
   def send_signup_email
@@ -164,7 +160,8 @@ class User < ActiveRecord::Base
 
   def search_data
     {
-      username: username
+      username: username,
+      points: points
     }
   end
 
