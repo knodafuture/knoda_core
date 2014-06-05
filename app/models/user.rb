@@ -249,10 +249,8 @@ class User < ActiveRecord::Base
     end
     user.password = Devise.friendly_token[0,6]
     user.avatar = user.avatar_from_url social_params[:image]
-    puts social_params[:signup_source]
     if social_params[:signup_source]
       user.signup_source = social_params[:signup_source]
-      puts 'i want to set a signup source'
     end
     user.save
     unless user.errors.empty?
