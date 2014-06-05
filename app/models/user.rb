@@ -23,6 +23,7 @@ class User < ActiveRecord::Base
   has_many :invitations
   has_many :referrals
   has_many :social_accounts
+  has_many :user_events
 
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
@@ -249,12 +250,9 @@ class User < ActiveRecord::Base
     end
     user.password = Devise.friendly_token[0,6]
     user.avatar = user.avatar_from_url social_params[:image]
-    if social_params[:signup_source]
-      user.signup_source = social_params[:signup_source]
-    end
     user.save
+    UserEvent.new(:user_id => @user.id, :name => 'SIGNUP', :platform => social_params[:signup_source]).save
     unless user.errors.empty?
-      puts user.errors.to_json
       return user
     end
 
