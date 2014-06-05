@@ -251,7 +251,7 @@ class User < ActiveRecord::Base
     user.password = Devise.friendly_token[0,6]
     user.avatar = user.avatar_from_url social_params[:image]
     user.save
-    UserEvent.new(:user_id => @user.id, :name => 'SIGNUP', :platform => social_params[:signup_source]).save
+    UserEvent.new(:user_id => user.id, :name => 'SIGNUP', :platform => social_params[:signup_source]).save
     unless user.errors.empty?
       return user
     end
