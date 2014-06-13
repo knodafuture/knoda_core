@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   include Authority::Abilities
   self.authorizer_name = 'UserAuthorizer'
 
+  after_create :update_notification_settings
   after_create :registration_badges
   after_create :send_signup_email
 
@@ -26,6 +27,7 @@ class User < ActiveRecord::Base
   has_many :referrals
   has_many :social_accounts
   has_many :user_events
+  has_many :notification_settings
 
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
@@ -145,9 +147,17 @@ class User < ActiveRecord::Base
     self.activities.unseen.count
   end
 
+
+  def update_notification_settings
+    self.notification_settings.create!(:user => self, :setting => 'PUSH_EXPIRED', :active => true)
+    self.notification_settings.create!(:user => self, :setting => 'PUSH_GROUP_INVITATION', :active => true)
+    self.notification_settings.create!(:user => self, :setting => 'PUSH_COMMENTS',:active => true)
+    self.notification_settings.create!(:user => self, :setting => 'PUSH_OUTCOME', :active => false)
+  end
+
   def send_signup_email
     if self.email
-      SignupMailer.signup(self).deliver
+      UserWelcomeEmail.perform_async(self.id)
     end
   end
 
