@@ -3,6 +3,8 @@ class User < ActiveRecord::Base
   searchkick text_start: [:username]
   include Authority::UserAbilities
   include CroppableAvatar
+  include Authority::Abilities
+  self.authorizer_name = 'UserAuthorizer'
 
   after_create :registration_badges
   after_create :send_signup_email
