@@ -146,7 +146,9 @@ class User < ActiveRecord::Base
   end
 
   def send_signup_email
-    SignupMailer.signup(self).deliver
+    if self.email
+      SignupMailer.signup(self).deliver
+    end
   end
 
   def send_email_if_username_was_changed
