@@ -156,13 +156,13 @@ class User < ActiveRecord::Base
   end
 
   def send_signup_email
-    if self.email
+    if self.email != nil
       UserWelcomeEmail.perform_async(self.id)
     end
   end
 
   def send_email_if_username_was_changed
-    if self.username_changed?
+    if self.username_changed? and self.email != nil
       UserMailer.username_was_changed(self).deliver
     end
   end
