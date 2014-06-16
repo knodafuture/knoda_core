@@ -149,10 +149,10 @@ class User < ActiveRecord::Base
 
 
   def update_notification_settings
-    self.notification_settings.create!(:user => self, :setting => 'PUSH_EXPIRED', :active => true)
-    self.notification_settings.create!(:user => self, :setting => 'PUSH_GROUP_INVITATION', :active => true)
-    self.notification_settings.create!(:user => self, :setting => 'PUSH_COMMENTS',:active => true)
-    self.notification_settings.create!(:user => self, :setting => 'PUSH_OUTCOME', :active => false)
+    self.notification_settings.create!(:user => self, :setting => 'PUSH_EXPIRED', :display_name => 'Expired Predictions', :description => 'Notify me when I need to settle a prediction I made.', :active => true)
+    self.notification_settings.create!(:user => self, :setting => 'PUSH_GROUP_INVITATION',  :display_name => 'Group Invitations', :description => 'Notify me when I am invited to join a group.',:active => true)
+    self.notification_settings.create!(:user => self, :setting => 'PUSH_COMMENTS', :display_name => 'Comments', :description => 'Notify me when other users comment on my predictions, or reply to my comments.',:active => true)
+    self.notification_settings.create!(:user => self, :setting => 'PUSH_OUTCOME',  :display_name => 'Wins & Losses', :description => 'Notify me when I win or lose a prediction I voted on.',:active => false)
   end
 
   def send_signup_email
