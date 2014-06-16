@@ -162,13 +162,13 @@ class User < ActiveRecord::Base
   end
 
   def send_email_if_username_was_changed
-    if self.username_changed? and self.email != nil
+    if self.username_changed? and self.email != nil and self.username_was != "Guest#{self.id}"
       UserMailer.username_was_changed(self).deliver
     end
   end
 
   def send_email_if_email_was_changed
-    if self.email_changed?
+    if self.email_changed? and self.email_was != nil
       UserMailer.email_was_changed(self).deliver
     end
   end
