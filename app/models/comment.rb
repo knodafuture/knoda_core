@@ -6,7 +6,7 @@ class Comment < ActiveRecord::Base
   validates :prediction_id, presence: true
 
   after_commit :create_activities
-  
+
   include Authority::Abilities
   self.authorizer_name = 'CommentAuthorizer'
 
@@ -15,6 +15,10 @@ class Comment < ActiveRecord::Base
   scope :id_gt, -> (i) {where('comments.id > ?', i) if i}
 
   def create_activities
+    CommentNotifications.perform_async(self.id)
+  end
+
+  def notify_users
     commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
     if self.prediction.user.id != self.user_id
       a = Activity.find_or_initialize_by(user_id: self.prediction.user.id, prediction_id: self.prediction.id, activity_type: 'COMMENT')
@@ -27,24 +31,24 @@ class Comment < ActiveRecord::Base
     Comment.select('user_id').where("prediction_id = ?", self.prediction.id).group("user_id").each do |c|
       if c.user_id != self.user_id
         a = Activity.find_or_initialize_by(user_id: c.user_id, prediction_id: self.prediction.id, activity_type: 'COMMENT')
-        a.title = (commentingUsers.length == 1) ? "#{commentingUsers.length} person commented on" : "#{commentingUsers.length} people commented on"        
+        a.title = (commentingUsers.length == 1) ? "#{commentingUsers.length} person commented on" : "#{commentingUsers.length} people commented on"
         a.prediction_body = self.prediction.body
         a.created_at = DateTime.now
         a.seen = false
-        a.save      
+        a.save
       end
     end
   end
 
   def challenge
     self.user.challenges.where(prediction_id: self.prediction_id).first
-  end  
+  end
 
   def settled
     self.is_closed?
   end
-  
+
   def expired
     self.expires_at && self.expires_at.past?
-  end  
+  end
 end
