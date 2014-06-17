@@ -45,6 +45,8 @@ class Prediction < ActiveRecord::Base
   scope :readyForResolution, -> {where('is_closed is false and resolution_date < now()')}
   scope :notAlerted, -> {where('activity_sent_at is null')}
   scope :for_group, -> (i) {where('group_id = ?', i) if i}
+  scope :losers, -> {where(:is_right => false)}
+  scope :winners, -> {where(:is_right => false)}
   scope :visible_to_user, -> (i) {
     if i
       where('group_id is null or group_id in (Select group_id from memberships where user_id = ?)', i)
@@ -61,6 +63,34 @@ class Prediction < ActiveRecord::Base
   def agreed_count
     a = self.challenges.select { |c| c.agree == true}
     a.length
+  end
+
+  def loser_count
+    a = self.challenges.select { |c| c.is_right == false }
+    a.length
+  end
+
+  def winner_count
+    a = self.challenges.select { |c| c.is_right == true }
+    a.length
+  end
+
+  def called_out_loser
+    losingChallenge = (self.challenges.where("is_right is false").order("is_own DESC, RANDOM()").first)
+    if losingChallenge
+      return losingChallenge.user
+    else
+      return nil
+    end
+  end
+
+  def called_out_winner
+    winningChallenge = (self.challenges.where("is_right is true").order("is_own DESC, RANDOM()").first)
+    if winningChallenge
+      return winningChallenge.user
+    else
+      return nil
+    end
   end
 
   def agree_percentage
@@ -209,7 +239,6 @@ class Prediction < ActiveRecord::Base
   end
 
   def max_tag_count
-
     errors[:tags] << "1 tag maximum" if self.tags.size > 1
   end
 

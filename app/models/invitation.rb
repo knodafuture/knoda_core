@@ -17,18 +17,20 @@ class Invitation < ActiveRecord::Base
     begin
       if (self.recipient_user_id and self.recipient_user_id > 0)
         InvitationMailer.inv(self).deliver
-        InvitationPushNotifier.deliver(self)
+        if User.find(self.recipient_user_id).notification_settings.where(:setting => 'PUSH_GROUP_INVITATION').first.active == true
+          InvitationPushNotifier.deliver(self)
+        end
       elsif (self.recipient_email)
         InvitationMailer.inv(self).deliver
       elsif (self.recipient_phone)
         InvitationSmsNotifier.deliver(self)
-      end      
+      end
     rescue
       puts 'Exception raised sending invitation'
     else
       self.update(:notified_at => DateTime.now)
     end
-  end          
+  end
 
   def send_invite_activity
     if (self.recipient_user_id and self.recipient_user_id > 0)
@@ -52,7 +54,7 @@ class Invitation < ActiveRecord::Base
       code = "I"
       "#{self.id}#{last4}".each_char do|c|
         code << number_to_letter(c)
-      end      
+      end
       self.update(:code => code);
     end
 

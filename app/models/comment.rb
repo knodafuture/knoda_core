@@ -15,11 +15,11 @@ class Comment < ActiveRecord::Base
   scope :id_gt, -> (i) {where('comments.id > ?', i) if i}
 
   def create_activities
-    puts "start async"
     NotifyCommentFollowers.perform_async(self.id)
   end
 
   def notify_users
+    out = ""
     commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
     if self.prediction.user.id != self.user_id
       a = Activity.find_or_initialize_by(user_id: self.prediction.user.id, prediction_id: self.prediction.id, activity_type: 'COMMENT')
@@ -28,6 +28,9 @@ class Comment < ActiveRecord::Base
       a.created_at = DateTime.now
       a.seen = false
       a.save
+      if self.prediction.user.notification_settings.where(:setting => 'PUSH_COMMENTS').first.active == true
+        CommentPushNotifier.deliver(self, self.prediction.user)
+      end
     end
     Comment.select('user_id').where("prediction_id = ?", self.prediction.id).group("user_id").each do |c|
       if c.user_id != self.user_id
@@ -37,8 +40,12 @@ class Comment < ActiveRecord::Base
         a.created_at = DateTime.now
         a.seen = false
         a.save
+        if c.user.notification_settings.where(:setting => 'PUSH_COMMENTS').first.active == true
+          CommentPushNotifier.deliver(self, c.user)
+        end
       end
     end
+    return out
   end
 
   def challenge
@@ -51,5 +58,22 @@ class Comment < ActiveRecord::Base
 
   def expired
     self.expires_at && self.expires_at.past?
+  end
+
+  def to_push_text
+    if self.text.length > 100
+      comment_text_sub = self.text.slice(0,97) + "..."
+    else
+      comment_text_sub = self.text.slice(0,100)
+    end
+    commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
+    t = "#{self.user.username} "
+    if commentingUsers.length > 2
+      t << "& #{commentingUsers.length - 1} others "
+    elsif commentingUsers.length == 2
+      t << "& 1 other "
+    end
+    t << "commented on #{self.prediction.user.username}'s prediction. \"#{comment_text_sub}\""
+    return t
   end
 end

@@ -1,9 +1,9 @@
-class PredictionClose
+class ChallengeClose
   include Sidekiq::Worker
 
-  def perform(prediction_id)
+  def perform(challenge_id)
     ActiveRecord::Base.connection_pool.with_connection do
-      Prediction.find(prediction_id).after_close
+      Challenge.find(challenge_id).close_async
     end
   end
 end
