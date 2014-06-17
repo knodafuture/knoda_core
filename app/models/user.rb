@@ -254,8 +254,11 @@ class User < ActiveRecord::Base
       account.save()
       return account.user
     end
-
-    user = User.new
+    if social_params[:current_user]
+      user = social_params[:current_user]
+    else
+      user = User.new
+    end
     user.username = sanitize_new_username(social_params[:username])
     if social_params[:email]
       user.email = social_params[:email]
@@ -265,11 +268,14 @@ class User < ActiveRecord::Base
     user.password = Devise.friendly_token[0,6]
     user.avatar = user.avatar_from_url social_params[:image]
     user.save
-    UserEvent.new(:user_id => user.id, :name => 'SIGNUP', :platform => social_params[:signup_source]).save
+    if social_params[:current_user]
+      UserEvent.new(:user_id => user.id, :name => 'SIGNUP', :platform => social_params[:signup_source]).save
+    else
+      UserEvent.new(:user_id => user.id, :name => 'CONVERT', :platform => social_params[:signup_source]).save
+    end
     unless user.errors.empty?
       return user
     end
-
     account = SocialAccount.new
     account.provider_name = social_params[:provider_name]
     account.provider_id = social_params[:provider_id]
@@ -278,8 +284,6 @@ class User < ActiveRecord::Base
     account.provider_account_name = social_params[:provider_account_name]
     account.user = user
     account.save!
-
     return user
-
   end
 end
