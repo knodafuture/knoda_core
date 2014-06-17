@@ -256,6 +256,7 @@ class User < ActiveRecord::Base
     end
     if social_params[:current_user]
       user = social_params[:current_user]
+      user.guest_mode = false
     else
       user = User.new
     end
