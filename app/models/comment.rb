@@ -5,7 +5,7 @@ class Comment < ActiveRecord::Base
   validates :user_id, presence: true
   validates :prediction_id, presence: true
 
-  after_commit :create_activities
+  after_create :create_activities
 
   include Authority::Abilities
   self.authorizer_name = 'CommentAuthorizer'
@@ -15,7 +15,8 @@ class Comment < ActiveRecord::Base
   scope :id_gt, -> (i) {where('comments.id > ?', i) if i}
 
   def create_activities
-    CommentNotifications.perform_async(self.id)
+    puts "start async"
+    NotifyCommentFollowers.perform_async(self.id)
   end
 
   def notify_users
