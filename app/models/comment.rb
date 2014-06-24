@@ -23,8 +23,9 @@ class Comment < ActiveRecord::Base
     commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
     if self.prediction.user.id != self.user_id
       a = Activity.find_or_initialize_by(user_id: self.prediction.user.id, prediction_id: self.prediction.id, activity_type: 'COMMENT')
-      a.title = (commentingUsers.length == 1) ? "#{commentingUsers.length} person commented on" : "#{commentingUsers.length} people commented on"
+      a.title = notification_title()
       a.prediction_body = self.prediction.body
+      a.comment_body = self.text
       a.created_at = DateTime.now
       a.seen = false
       a.save
@@ -35,8 +36,9 @@ class Comment < ActiveRecord::Base
     Comment.select('user_id').where("prediction_id = ?", self.prediction.id).group("user_id").each do |c|
       if c.user_id != self.user_id
         a = Activity.find_or_initialize_by(user_id: c.user_id, prediction_id: self.prediction.id, activity_type: 'COMMENT')
-        a.title = (commentingUsers.length == 1) ? "#{commentingUsers.length} person commented on" : "#{commentingUsers.length} people commented on"
+        a.title = notification_title()
         a.prediction_body = self.prediction.body
+        a.comment_body = self.text
         a.created_at = DateTime.now
         a.seen = false
         a.save
@@ -66,6 +68,13 @@ class Comment < ActiveRecord::Base
     else
       comment_text_sub = self.text.slice(0,100)
     end
+    t = notification_title()
+    t <<  "\"#{comment_text_sub}\""
+    return t
+  end
+
+private
+  def notification_title
     commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
     t = "#{self.user.username} "
     if commentingUsers.length > 2
