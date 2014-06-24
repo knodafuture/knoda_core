@@ -12,12 +12,17 @@ class CommentPushNotifier
     recipient.apple_device_tokens.where(sandbox: Rails.application.config.apns_sandbox).each do |token|
       notification = Grocer::Notification.new(
         device_token:      token.token,
-        alert:             message
+        alert:             message,
+        badge:             recipients.alerts_count,
+        custom: {
+          "id": comment.prediction.id,
+          "type": 'p'
+        }
       )
       pusher.push(notification)
     end
     if recipient.android_device_tokens.size > 0
-      response = gcm.send_notification(recipient.android_device_tokens.pluck(:token), {data: {alert: message}});
+      response = gcm.send_notification(recipient.android_device_tokens.pluck(:token), {data: {alert: message, id: comment.prediction.id, type: 'p'}});
     end
   end
 end

@@ -15,12 +15,17 @@ class InvitationPushNotifier
     recipient.apple_device_tokens.where(sandbox: Rails.application.config.apns_sandbox).each do |token|
       notification = Grocer::Notification.new(
         device_token:      token.token,
-        alert:             message
+        alert:             message,
+        badge:             recipient.alerts_count,
+        custom: {
+          "id": invitation.id
+          "type": 'i'
+        }
       )
       pusher.push(notification)
     end
     if recipient.android_device_tokens.size > 0
-      response = gcm.send_notification(recipient.android_device_tokens.pluck(:token), {data: {alert: message}});
+      response = gcm.send_notification(recipient.android_device_tokens.pluck(:token), {data: {alert: message, id: invitation.id, type: 'i'}});
     end
   end
 end
