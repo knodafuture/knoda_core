@@ -15,8 +15,8 @@ class CommentPushNotifier
         alert:             message,
         badge:             recipients.alerts_count,
         custom: {
-          "id": comment.prediction.id,
-          "type": 'p'
+          :id => comment.prediction.id,
+          :type => 'p'
         }
       )
       pusher.push(notification)
