@@ -16,7 +16,7 @@ class OutcomePushNotifier
         alert:             message,
         badge:             recipient.alerts_count,
         custom: {
-          "id": challenge.prediction.id
+          "id": challenge.prediction.id,
           "type": 'p'
         }
       )

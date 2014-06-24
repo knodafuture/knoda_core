@@ -18,7 +18,7 @@ class InvitationPushNotifier
         alert:             message,
         badge:             recipient.alerts_count,
         custom: {
-          "id": invitation.code
+          "id": invitation.code,
           "type": 'gic'
         }
       )
