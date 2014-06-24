@@ -87,13 +87,7 @@ class Challenge < ActiveRecord::Base
   end
 
   def close_async
-    if self.is_own
-      title = (self.agree == self.prediction.outcome) ? "You won #{self.total_points} points for" : "You lost but still got #{self.total_points} points for your prediction"
-    else
-      title = (self.agree == self.prediction.outcome) ? "Your vote was right and you earned #{self.total_points} points" : "Your vote was wrong but you earned #{self.total_points} points"
-    end
-    activity_type = (self.agree == self.prediction.outcome) ? 'WON' : 'LOST'
-    Activity.create!(user: self.user, prediction_id: self.prediction.id, title: title, prediction_body: self.prediction.body, activity_type: activity_type);
+    Activity.create!(self.to_activity)
     if self.user.notification_settings.where(:setting => 'PUSH_OUTCOME').first.active == true and not self.is_own
       OutcomePushNotifier.deliver(self)
     end
@@ -108,29 +102,17 @@ class Challenge < ActiveRecord::Base
     }
   end
 
+  def to_activity
+    title = notification_title()
+    activity_type = (self.agree == self.prediction.outcome) ? 'WON' : 'LOST'
+    return {:user => self.user, :prediction_id => self.prediction.id, :title => title, :prediction_body => self.prediction.body, :activity_type => activity_type}
+  end
+
   def push_outcome_text
+    text = notification_title()
     prediction_text_sub = self.prediction.body.slice(0,100)
-    if self.is_own
-      if self.is_right
-        return "You Won - Nice! Your prediction was correct & you beat #{self.prediction.loser_count} others. \"#{prediction_text_sub}\""
-      else
-        return "You Lost - Aw shucks, your prediction was incorrect. \"#{prediction_text_sub}\""
-      end
-    else
-      text = ""
-      if self.is_right
-        text = "You Won - Booya!"
-        if self.prediction.called_out_loser
-          text << " You beat #{self.prediction.called_out_loser.username} & #{self.prediction.loser_count} others. \"#{prediction_text_sub}\""
-        end
-      else
-        text = "You Lost - Bummer"
-        if self.prediction.called_out_winner
-          text << ", #{self.prediction.called_out_winner.username} & #{self.prediction.winner_count} others beat you. \"#{prediction_text_sub}\""
-        end
-      end
-      return text
-    end
+    text << " \"#{prediction_text_sub}\""
+    return text
   end
 
   private
@@ -147,5 +129,30 @@ class Challenge < ActiveRecord::Base
     if not self.is_own
       self.user.challenge_create_badges
     end
+  end
+
+private
+  def notification_title
+    if self.is_own
+      if self.is_right
+        title =  "You Won - Nice! Your prediction was correct & you beat #{self.prediction.loser_count} others."
+      else
+        title =  "You Lost - Aw shucks, your prediction was incorrect."
+      end
+    else
+      title = ""
+      if self.is_right
+        title = "You Won - Booya!"
+        if self.prediction.called_out_loser
+          title << " You beat #{self.prediction.called_out_loser.username} & #{self.prediction.loser_count} others."
+        end
+      else
+        title = "You Lost - Bummer"
+        if self.prediction.called_out_winner
+          title << ", #{self.prediction.called_out_winner.username} & #{self.prediction.winner_count} others beat you."
+        end
+      end
+    end
+    return title
   end
 end
