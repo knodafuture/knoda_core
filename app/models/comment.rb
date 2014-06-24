@@ -29,7 +29,11 @@ class Comment < ActiveRecord::Base
       a.seen = false
       a.save
       if self.prediction.user.notification_settings.where(:setting => 'PUSH_COMMENTS').first.active == true
-        CommentPushNotifier.deliver(self, self.prediction.user, true)
+        if (self.prediction.user.id == self.user.id)
+          CommentPushNotifier.deliver(self, self.prediction.user, true)
+        else
+          CommentPushNotifier.deliver(self, self.prediction.user, false)
+        end
       end
     end
     Comment.select('user_id').where("prediction_id = ?", self.prediction.id).group("user_id").each do |c|
@@ -41,7 +45,11 @@ class Comment < ActiveRecord::Base
         a.seen = false
         a.save
         if c.user.notification_settings.where(:setting => 'PUSH_COMMENTS').first.active == true
-          CommentPushNotifier.deliver(self, c.user, false)
+          if (self.prediction.user.id == self.user.id)
+            CommentPushNotifier.deliver(self, c.user, true)
+          else
+            CommentPushNotifier.deliver(self, c.user, false)
+          end
         end
       end
     end
