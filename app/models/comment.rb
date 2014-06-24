@@ -29,7 +29,7 @@ class Comment < ActiveRecord::Base
       a.seen = false
       a.save
       if self.prediction.user.notification_settings.where(:setting => 'PUSH_COMMENTS').first.active == true
-        CommentPushNotifier.deliver(self, self.prediction.user)
+        CommentPushNotifier.deliver(self, self.prediction.user, true)
       end
     end
     Comment.select('user_id').where("prediction_id = ?", self.prediction.id).group("user_id").each do |c|
@@ -41,7 +41,7 @@ class Comment < ActiveRecord::Base
         a.seen = false
         a.save
         if c.user.notification_settings.where(:setting => 'PUSH_COMMENTS').first.active == true
-          CommentPushNotifier.deliver(self, c.user)
+          CommentPushNotifier.deliver(self, c.user, false)
         end
       end
     end
@@ -60,7 +60,7 @@ class Comment < ActiveRecord::Base
     self.expires_at && self.expires_at.past?
   end
 
-  def to_push_text
+  def to_push_text(is_owner)
     if self.text.length > 100
       comment_text_sub = self.text.slice(0,97) + "..."
     else
@@ -73,7 +73,11 @@ class Comment < ActiveRecord::Base
     elsif commentingUsers.length == 2
       t << "& 1 other "
     end
-    t << "commented on #{self.prediction.user.username}'s prediction. \"#{comment_text_sub}\""
+    if is_owner
+      t << "commented on your prediction. \"#{comment_text_sub}\""
+    else
+      t << "commented on #{self.prediction.user.username}'s prediction. \"#{comment_text_sub}\""
+    end
     return t
   end
 end
