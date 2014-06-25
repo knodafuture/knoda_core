@@ -121,12 +121,26 @@ class Challenge < ActiveRecord::Base
       if self.is_right
         text = "You Won - Booya!"
         if self.prediction.called_out_loser
-          text << " You beat #{self.prediction.called_out_loser.username} & #{self.prediction.loser_count} others. \"#{prediction_text_sub}\""
+          text << " You beat #{self.prediction.called_out_loser.username}"
+          o = self.prediction.loser_count
+          if o > 2
+            t << " & #{o - 1} others"
+          elsif o == 2
+            t << " & 1 other"
+          end
+          text << " others. \"#{prediction_text_sub}\""
         end
       else
         text = "You Lost - Bummer"
         if self.prediction.called_out_winner
-          text << ", #{self.prediction.called_out_winner.username} & #{self.prediction.winner_count} others beat you. \"#{prediction_text_sub}\""
+          text << ", #{self.prediction.called_out_winner.username}"
+          o = self.prediction.winner_count
+          if o > 2
+            t << " & #{o - 1} others"
+          elsif o == 2
+            t << " & 1 other"
+          end
+          text << " beat you. \"#{prediction_text_sub}\""
         end
       end
       return text
