@@ -13,7 +13,7 @@ class CommentPushNotifier
       notification = Grocer::Notification.new(
         device_token:      token.token,
         alert:             message,
-        badge:             recipients.alerts_count,
+        badge:             recipient.alerts_count,
         custom: {
           :id => comment.prediction.id,
           :type => 'p'
