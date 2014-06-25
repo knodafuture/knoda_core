@@ -1,6 +1,7 @@
 class CommentPushNotifier
 
   def self.deliver(comment, recipient, is_owner)
+    puts "ADAM ENGLAND IS HERE TO ROCK"
     pusher = Grocer.pusher(
           certificate: Rails.application.config.apns_certificate,
           gateway:     Rails.application.config.apns_gateway,
@@ -19,7 +20,9 @@ class CommentPushNotifier
           "type" => 'p'
         }
       )
-      pusher.push(notification)
+      puts notification
+      x = pusher.push(notification)
+      puts x
     end
     if recipient.android_device_tokens.size > 0
       response = gcm.send_notification(recipient.android_device_tokens.pluck(:token), {data: {alert: message, id: comment.prediction.id, type: 'p'}});
