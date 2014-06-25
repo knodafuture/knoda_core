@@ -82,15 +82,18 @@ private
     elsif commentingUsers.length == 2
       t << "& 1 other "
     end
-<<<<<<< HEAD
+    #commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
+    t = "#{self.user.username} "
+    #if commentingUsers.length > 2
+    #  t << "& #{commentingUsers.length - 1} others "
+    #elsif commentingUsers.length == 2
+    #  t << "& 1 other "
+    #end
     if is_owner
-      t << "commented on your prediction."
+      t << "commented on a prediction by you. \"#{comment_text_sub}\""
     else
-      t << "commented on #{self.prediction.user.username}'s prediction."
+      t << "commented on a prediction by #{self.prediction.user.username}. \"#{comment_text_sub}\""
     end
-=======
-    t << "commented on #{self.prediction.user.username}'s prediction."
->>>>>>> Reworked activities for new feed
     return t
   end
 end
