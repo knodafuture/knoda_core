@@ -66,17 +66,17 @@ class Comment < ActiveRecord::Base
     else
       comment_text_sub = self.text.slice(0,100)
     end
-    commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
+    #commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
     t = "#{self.user.username} "
-    if commentingUsers.length > 2
-      t << "& #{commentingUsers.length - 1} others "
-    elsif commentingUsers.length == 2
-      t << "& 1 other "
-    end
+    #if commentingUsers.length > 2
+    #  t << "& #{commentingUsers.length - 1} others "
+    #elsif commentingUsers.length == 2
+    #  t << "& 1 other "
+    #end
     if is_owner
-      t << "commented on your prediction. \"#{comment_text_sub}\""
+      t << "commented on a prediction by you. \"#{comment_text_sub}\""
     else
-      t << "commented on #{self.prediction.user.username}'s prediction. \"#{comment_text_sub}\""
+      t << "commented on a prediction by #{self.prediction.user.username}. \"#{comment_text_sub}\""
     end
     return t
   end
