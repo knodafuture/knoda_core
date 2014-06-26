@@ -1,8 +1,5 @@
 class NotifyExpiredPredictionsWorker
   include Sidekiq::Worker
-  include Sidetiq::Schedulable
-
-  recurrence { minutely }
 
   def perform
     ActiveRecord::Base.connection_pool.with_connection do
