@@ -6,6 +6,7 @@ class Prediction < ActiveRecord::Base
   include RenderAnywhere
   include Authority::Abilities
   include PredictionImageBuilder
+  include ActionView::Helpers::DateHelper
   self.authorizer_name = 'PredictionAuthorizer'
 
   after_create :prediction_create_badges
@@ -214,6 +215,18 @@ class Prediction < ActiveRecord::Base
     }
   end
 
+  def predicted_text
+    return "predicted #{distance_of_time_in_words_to_now(self.created_at)} ago"
+  end
+
+  def expired_text
+    if self.expires_at > Time.now
+      return "closes #{distance_of_time_in_words_to_now(self.expires_at)} from now"
+    else
+      return "closed #{distance_of_time_in_words_to_now(self.expires_at)} ago"
+    end
+  end
+
   private
 
   def is_not_settled
@@ -271,4 +284,6 @@ class Prediction < ActiveRecord::Base
     end
     self.save()
   end
+
+
 end
