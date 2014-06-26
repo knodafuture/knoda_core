@@ -23,7 +23,7 @@ class Comment < ActiveRecord::Base
     commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
     if self.prediction.user.id != self.user_id
       a = Activity.find_or_initialize_by(user_id: self.prediction.user.id, prediction_id: self.prediction.id, activity_type: 'COMMENT')
-      a.title = notification_title()
+      a.title = notification_title(true)
       a.prediction_body = self.prediction.body
       a.comment_body = self.text
       a.created_at = DateTime.now
@@ -36,7 +36,7 @@ class Comment < ActiveRecord::Base
     Comment.select('user_id').where("prediction_id = ?", self.prediction.id).group("user_id").each do |c|
       if c.user_id != self.user_id
         a = Activity.find_or_initialize_by(user_id: c.user_id, prediction_id: self.prediction.id, activity_type: 'COMMENT')
-        a.title = notification_title()
+        a.title = notification_title(false)
         a.prediction_body = self.prediction.body
         a.comment_body = self.text
         a.created_at = DateTime.now
@@ -68,13 +68,13 @@ class Comment < ActiveRecord::Base
     else
       comment_text_sub = self.text.slice(0,100)
     end
-    t = notification_title()
+    t = notification_title(is_owner)
     t <<  "\"#{comment_text_sub}\""
     return t
   end
 
 private
-  def notification_title
+  def notification_title(is_owner)
     commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
     t = "#{self.user.username} "
     if commentingUsers.length > 2
@@ -90,9 +90,9 @@ private
     #  t << "& 1 other "
     #end
     if is_owner
-      t << "commented on a prediction by you. \"#{comment_text_sub}\""
+      t << "commented on a prediction by you. "
     else
-      t << "commented on a prediction by #{self.prediction.user.username}. \"#{comment_text_sub}\""
+      t << "commented on a prediction by #{self.prediction.user.username}. "
     end
     return t
   end

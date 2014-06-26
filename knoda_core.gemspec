@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'omniauth-twitter'
   s.add_dependency 'open_uri_redirections'
   s.add_dependency 'sidekiq',  '3.0.2'
+  s.add_dependency 'sidetiq', '0.6.1'
   s.add_development_dependency "sqlite3"
   s.add_dependency 'imgkit'
   s.add_dependency 'render_anywhere', '0.0.8'
