@@ -216,25 +216,38 @@ class Prediction < ActiveRecord::Base
   end
 
   def predicted_text
-    t = distance_of_time_in_words_to_now(self.created_at)
-    t.gsub!("about ", '')
-    t.gsub!("less than ",'')
-    t.gsub!("almost ",'')
-    t.gsub!("over ",'')
+    t = distance_text(self.created_at)
     return "made #{t} ago"
   end
 
   def expired_text
-    t = distance_of_time_in_words_to_now(self.expires_at)
+    t = distance_text(self.expires_at)
+    if self.expires_at > Time.now
+      return "closes #{t}"
+    else
+      return "closed #{t} ago"
+    end
+  end
+
+  def distance_text(d)
+    t = distance_of_time_in_words_to_now(d)
     t.gsub!("about ", '')
     t.gsub!("less than ",'')
     t.gsub!("almost ",'')
     t.gsub!("over ",'')
-    if self.expires_at > Time.now
-      return "closes in #{t}"
-    else
-      return "closed #{t} ago"
-    end
+    t.gsub!(" years", 'yrs')
+    t.gsub!(" year", 'yr')
+    t.gsub!(" months", 'mo')
+    t.gsub!(" month", 'mo')
+    t.gsub!(" days", 'd')
+    t.gsub!(" day", 'd')
+    t.gsub!(" hours", 'h')
+    t.gsub!(" hour", 'h')
+    t.gsub!(" minutes", 'm')
+    t.gsub!(" minute", 'm')
+    t.gsub!(" seconds", 's')
+    t.gsub!(" second", 's')
+    return t
   end
 
   private
