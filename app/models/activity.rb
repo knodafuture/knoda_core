@@ -1,11 +1,12 @@
 class Activity < ActiveRecord::Base
   belongs_to :user
+  belongs_to :comment
 
   validates :user_id, presence: true
   validates :activity_type, presence: true
 
   validate :prediction_or_invitation
-  
+
   include Authority::Abilities
   self.authorizer_name = 'ActivityAuthorizer'
 
@@ -24,5 +25,5 @@ class Activity < ActiveRecord::Base
           errors.add(:base, "Specify an prediction_id and body")
         end
       end
-    end  
+    end
 end
