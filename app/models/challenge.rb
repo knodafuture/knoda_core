@@ -124,9 +124,9 @@ class Challenge < ActiveRecord::Base
           text << " You beat #{self.prediction.called_out_loser.username}"
           o = self.prediction.loser_count
           if o > 2
-            t << " & #{o - 1} others"
+            text << " & #{o - 1} others"
           elsif o == 2
-            t << " & 1 other"
+            text << " & 1 other"
           end
           text << " others. \"#{prediction_text_sub}\""
         end
@@ -136,9 +136,9 @@ class Challenge < ActiveRecord::Base
           text << ", #{self.prediction.called_out_winner.username}"
           o = self.prediction.winner_count
           if o > 2
-            t << " & #{o - 1} others"
+            text << " & #{o - 1} others"
           elsif o == 2
-            t << " & 1 other"
+            text << " & 1 other"
           end
           text << " beat you. \"#{prediction_text_sub}\""
         end
