@@ -4,6 +4,7 @@ class Invitation < ActiveRecord::Base
   before_create :clean_data
   after_create :generate_code
   after_create :send_invite_activity
+  after_create :send_async
 
   scope :unnotified, -> {where('notified_at is null')}
 
@@ -11,6 +12,10 @@ class Invitation < ActiveRecord::Base
 
   def invitation_link
     "#{Rails.application.config.knoda_web_url}/groups/join?code=#{self.code}"
+  end
+
+  def send_async
+    SendGroupInvite.perform_async(self.id)
   end
 
   def send_invite
