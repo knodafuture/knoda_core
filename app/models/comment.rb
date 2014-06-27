@@ -25,7 +25,10 @@ class Comment < ActiveRecord::Base
       a = Activity.find_or_initialize_by(user_id: self.prediction.user.id, prediction_id: self.prediction.id, activity_type: 'COMMENT')
       a.title = notification_title(true)
       a.prediction_body = self.prediction.body
-      a.comment_id = self.id
+      if self.user.avatar_image
+        a.image_url = self.user.avatar_image[:small]
+      end
+      a.image_url = self.user.
       a.comment_body = self.text
       a.created_at = DateTime.now
       a.seen = false
@@ -39,7 +42,9 @@ class Comment < ActiveRecord::Base
         a = Activity.find_or_initialize_by(user_id: c.user_id, prediction_id: self.prediction.id, activity_type: 'COMMENT')
         a.title = notification_title(false)
         a.prediction_body = self.prediction.body
-        a.comment_id = self.id
+        if self.user.avatar_image
+          a.image_url = self.user.avatar_image[:small]
+        end
         a.comment_body = self.text
         a.created_at = DateTime.now
         a.seen = false

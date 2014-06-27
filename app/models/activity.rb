@@ -1,6 +1,5 @@
 class Activity < ActiveRecord::Base
   belongs_to :user
-  belongs_to :comment
 
   validates :user_id, presence: true
   validates :activity_type, presence: true
