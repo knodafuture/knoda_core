@@ -1,4 +1,4 @@
-class NotifyExpiredPredictionsWorker
+class Recurring::NotifyExpiredPredictions
   include Sidekiq::Worker
 
   def perform
