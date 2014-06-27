@@ -28,7 +28,6 @@ class Comment < ActiveRecord::Base
       if self.user.avatar_image
         a.image_url = self.user.avatar_image[:small]
       end
-      a.image_url = self.user.
       a.comment_body = self.text
       a.created_at = DateTime.now
       a.seen = false
