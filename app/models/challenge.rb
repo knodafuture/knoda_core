@@ -103,9 +103,8 @@ class Challenge < ActiveRecord::Base
   end
 
   def to_activity
-    title = notification_title()
     activity_type = (self.agree == self.prediction.outcome) ? 'WON' : 'LOST'
-    return {:user => self.user, :prediction_id => self.prediction.id, :title => title, :prediction_body => self.prediction.body, :activity_type => activity_type}
+    return {:user => self.user, :prediction_id => self.prediction.id, :title => notification_title(), :prediction_body => self.prediction.body, :activity_type => activity_type, :image_url => notification_image_url()}
   end
 
   def push_outcome_text
@@ -133,26 +132,31 @@ class Challenge < ActiveRecord::Base
 
 private
   def notification_title
-    if self.is_own
-      if self.is_right
-        title =  "You Won - Nice! Your prediction was correct & you beat #{self.prediction.loser_count} others."
-      else
-        title =  "You Lost - Aw shucks, your prediction was incorrect."
+    title = ""
+    if self.is_right
+      title = "You Won - Booya!"
+      if self.prediction.called_out_loser
+        title << " You beat #{self.prediction.called_out_loser.username} & #{self.prediction.loser_count} others."
       end
     else
-      title = ""
-      if self.is_right
-        title = "You Won - Booya!"
-        if self.prediction.called_out_loser
-          title << " You beat #{self.prediction.called_out_loser.username} & #{self.prediction.loser_count} others."
-        end
-      else
-        title = "You Lost - Bummer"
-        if self.prediction.called_out_winner
-          title << ", #{self.prediction.called_out_winner.username} & #{self.prediction.winner_count} others beat you."
-        end
+      title = "You Lost - Bummer"
+      if self.prediction.called_out_winner
+        title << ", #{self.prediction.called_out_winner.username} & #{self.prediction.winner_count} others beat you."
       end
     end
     return title
   end
+
+  def notification_image_url
+    if self.is_right
+      if self.prediction.called_out_loser and self.prediction.called_out_loser.avatar_image
+        return self.prediction.called_out_loser.avatar_image[:small]
+      end
+    else
+      if self.prediction.called_out_winner and self.prediction.called_out_winner.avatar_image
+        return self.prediction.called_out_winner.avatar_image[:small]
+      end
+    end
+  end
+
 end

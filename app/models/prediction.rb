@@ -77,7 +77,7 @@ class Prediction < ActiveRecord::Base
   end
 
   def called_out_loser
-    losingChallenge = (self.challenges.where("is_right is false").order("is_own DESC, RANDOM()").first)
+    losingChallenge = (self.challenges.where("is_right is false").order("is_own DESC, id DESC").first)
     if losingChallenge
       return losingChallenge.user
     else
@@ -86,7 +86,7 @@ class Prediction < ActiveRecord::Base
   end
 
   def called_out_winner
-    winningChallenge = (self.challenges.where("is_right is true").order("is_own DESC, RANDOM()").first)
+    winningChallenge = (self.challenges.where("is_right is true").order("is_own DESC, id DESC").first)
     if winningChallenge
       return winningChallenge.user
     else
