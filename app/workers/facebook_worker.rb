@@ -2,7 +2,7 @@ class FacebookWorker
   include Sidekiq::Worker
   @queue = :facebook
 
-  def perform(user_id, prediction_id)
+  def perform(user_id, prediction_id, brag)
     ActiveRecord::Base.connection_pool.with_connection do
       user = User.find(user_id)
       account = user.facebook_account
@@ -19,8 +19,21 @@ class FacebookWorker
       end
 
       graph = Koala::Facebook::API.new(account.access_token)
-
-      graph.put_connections("me", "knodafacebook:share", :prediction => "#{Rails.application.config.knoda_web_url}/predictions/#{prediction_id}/share")
+      if brag
+        if (prediction.user.id == user.id)
+          prefix = "I won my prediction:"
+        else
+          if (prediction.is_right)
+            prefix = "I agreed and won:"
+          else
+            prefix = "I disagreed and won:"
+          end
+        end
+        h = { :brag => true, :prefix => prefix}
+        graph.put_connections("me", "knodafacebook:share", :prediction => "#{Rails.application.config.knoda_web_url}/predictions/#{prediction_id}/share?#{h.to_param}")
+      else
+        graph.put_connections("me", "knodafacebook:share", :prediction => "#{Rails.application.config.knoda_web_url}/predictions/#{prediction_id}/share")
+      end
     end
   end
 end

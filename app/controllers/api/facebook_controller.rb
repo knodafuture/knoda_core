@@ -11,9 +11,13 @@ class Api::FacebookController < ActionController::Base
 
 	def create
 		p = post_params
-
+		if params[:type] == 'brag'
+			brag = true
+		else
+			brag = false
+		end
 		if p[:prediction_id]
-			FacebookWorker.perform_in(5.seconds, current_user.id,p[:prediction_id])
+			FacebookWorker.perform_in(5.seconds, current_user.id,p[:prediction_id], brag)
 		end
 
 		head :no_content

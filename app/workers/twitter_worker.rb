@@ -2,7 +2,7 @@ class TwitterWorker
   include Sidekiq::Worker
   @queue = :twitter
 
-  def perform(user_id, prediction_id)
+  def perform(user_id, prediction_id, brag)
     ActiveRecord::Base.connection_pool.with_connection do
       user = User.find(user_id)
       account = user.twitter_account
@@ -25,8 +25,19 @@ class TwitterWorker
         config.access_token        = account.access_token
         config.access_token_secret = account.access_token_secret
       end
-
-      message = trim_message prediction.body, "via @KNODAfuture #{prediction.short_url}"
+      if brag
+        if (prediction.user.id == user.id)
+          message = trim_message "I won my prediction: #{prediction.body}", "via @KNODAfuture #{prediction.short_url}"
+        else
+          if (prediction.is_right)
+            message = trim_message "I agreed and won: #{prediction.body}", "via @KNODAfuture #{prediction.short_url}"
+          else
+            message = trim_message "I disagreed and won: #{prediction.body}", "via @KNODAfuture #{prediction.short_url}"
+          end
+        end
+      else
+        message = trim_message prediction.body, "via @KNODAfuture #{prediction.short_url}"
+      end
       client.update(message)
     end
   end

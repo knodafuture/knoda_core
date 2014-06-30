@@ -11,11 +11,14 @@ class Api::TwitterController < ActionController::Base
 
 	def create
 		p = tweet_params
-
-		if p[:prediction_id]
-			TwitterWorker.perform_in(5.seconds, current_user.id,p[:prediction_id])
+		if params[:type] == 'brag'
+			brag = true
+		else
+			brag = false
 		end
-
+		if p[:prediction_id]
+			TwitterWorker.perform_in(5.seconds, current_user.id, p[:prediction_id], brag)
+		end
 		head :no_content
 	end
 
