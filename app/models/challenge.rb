@@ -119,12 +119,12 @@ class Challenge < ActiveRecord::Base
     title = ""
     if self.is_right
       title = "You Won - Booya!"
-      if self.prediction.called_out_loser
+      if self.prediction and self.prediction.called_out_loser
         title << " You beat #{self.prediction.called_out_loser.username} & #{self.prediction.loser_count} others"
       end
     else
       title = "You Lost - Bummer"
-      if self.prediction.called_out_winner
+      if self.prediction and self.prediction.called_out_winner
         title << ", #{self.prediction.called_out_winner.username} & #{self.prediction.winner_count} others beat you"
       end
     end
@@ -134,11 +134,11 @@ class Challenge < ActiveRecord::Base
 
   def notification_image_url
     if self.is_right
-      if self.prediction.called_out_loser and self.prediction.called_out_loser.avatar_image
+      if self.prediction and self.prediction.called_out_loser and self.prediction.called_out_loser.avatar_image
         return self.prediction.called_out_loser.avatar_image[:small]
       end
     else
-      if self.prediction.called_out_winner and self.prediction.called_out_winner.avatar_image
+      if self.prediction and self.prediction.called_out_winner and self.prediction.called_out_winner.avatar_image
         return self.prediction.called_out_winner.avatar_image[:small]
       end
     end
