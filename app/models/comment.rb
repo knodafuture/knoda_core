@@ -95,9 +95,9 @@ class Comment < ActiveRecord::Base
     #  t << "& 1 other "
     #end
     if is_owner
-      t << "commented on a prediction by you. "
+      t << "commented on a prediction by you."
     else
-      t << "commented on a prediction by #{self.prediction.user.username}. "
+      t << "commented on a prediction by #{self.prediction.user.username}."
     end
     return t
   end

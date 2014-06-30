@@ -114,6 +114,37 @@ class Challenge < ActiveRecord::Base
     return text
   end
 
+
+  def notification_title
+    title = ""
+    if self.is_right
+      title = "You Won - Booya!"
+      if self.prediction.called_out_loser
+        title << " You beat #{self.prediction.called_out_loser.username} & #{self.prediction.loser_count} others"
+      end
+    else
+      title = "You Lost - Bummer"
+      if self.prediction.called_out_winner
+        title << ", #{self.prediction.called_out_winner.username} & #{self.prediction.winner_count} others beat you"
+      end
+    end
+    title << "."
+    return title
+  end
+
+  def notification_image_url
+    if self.is_right
+      if self.prediction.called_out_loser and self.prediction.called_out_loser.avatar_image
+        return self.prediction.called_out_loser.avatar_image[:small]
+      end
+    else
+      if self.prediction.called_out_winner and self.prediction.called_out_winner.avatar_image
+        return self.prediction.called_out_winner.avatar_image[:small]
+      end
+    end
+  end
+
+
   private
 
   def prediction_is_not_expired
@@ -127,35 +158,6 @@ class Challenge < ActiveRecord::Base
   def challenge_create_badges
     if not self.is_own
       self.user.challenge_create_badges
-    end
-  end
-
-private
-  def notification_title
-    title = ""
-    if self.is_right
-      title = "You Won - Booya!"
-      if self.prediction.called_out_loser
-        title << " You beat #{self.prediction.called_out_loser.username} & #{self.prediction.loser_count} others."
-      end
-    else
-      title = "You Lost - Bummer"
-      if self.prediction.called_out_winner
-        title << ", #{self.prediction.called_out_winner.username} & #{self.prediction.winner_count} others beat you."
-      end
-    end
-    return title
-  end
-
-  def notification_image_url
-    if self.is_right
-      if self.prediction.called_out_loser and self.prediction.called_out_loser.avatar_image
-        return self.prediction.called_out_loser.avatar_image[:small]
-      end
-    else
-      if self.prediction.called_out_winner and self.prediction.called_out_winner.avatar_image
-        return self.prediction.called_out_winner.avatar_image[:small]
-      end
     end
   end
 
