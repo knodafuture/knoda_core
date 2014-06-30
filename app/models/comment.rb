@@ -79,7 +79,6 @@ class Comment < ActiveRecord::Base
     return t
   end
 
-private
   def notification_title(is_owner)
     commentingUsers = self.prediction.comments.group_by { |c| c.user_id}
     t = "#{self.user.username} "
@@ -102,4 +101,5 @@ private
     end
     return t
   end
+
 end
