@@ -136,10 +136,14 @@ class Challenge < ActiveRecord::Base
     if self.is_right
       if self.prediction and self.prediction.called_out_loser and self.prediction.called_out_loser.avatar_image
         return self.prediction.called_out_loser.avatar_image[:small]
+      else
+        return self.user.avatar_image[:small]
       end
     else
       if self.prediction and self.prediction.called_out_winner and self.prediction.called_out_winner.avatar_image
         return self.prediction.called_out_winner.avatar_image[:small]
+      else
+        return self.user.avatar_image[:small]
       end
     end
   end
