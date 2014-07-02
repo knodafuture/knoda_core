@@ -120,12 +120,26 @@ class Challenge < ActiveRecord::Base
     if self.is_right
       title = "You Won - Booya!"
       if self.prediction and self.prediction.called_out_loser
-        title << " You beat #{self.prediction.called_out_loser.username} & #{self.prediction.loser_count} others."
+        lc = (self.prediction.loser_count - 1)
+        if lc == 0
+          title << " You beat #{self.prediction.called_out_loser.username}."
+        elsif lc == 1
+          title << " You beat #{self.prediction.called_out_loser.username} & #{wc} other user."
+        else
+          title << " You beat #{self.prediction.called_out_loser.username} & #{lc} others."
+        end
       end
     else
       title = "You Lost - Bummer."
       if self.prediction and self.prediction.called_out_winner
-        title << " #{self.prediction.called_out_winner.username} & #{self.prediction.winner_count} others beat you."
+        wc = (self.prediction.winner_count - 1)
+        if wc == 0
+          title << " #{self.prediction.called_out_winner.username} beat you."
+        elsif wc == 1
+          title << " #{self.prediction.called_out_winner.username} & #{wc} other user beat you."
+        else
+          title << " #{self.prediction.called_out_winner.username} & #{wc} others beat you."
+        end
       end
     end
     return title
