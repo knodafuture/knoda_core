@@ -124,7 +124,7 @@ class Challenge < ActiveRecord::Base
         if lc == 0
           title << " You beat #{self.prediction.called_out_loser.username}."
         elsif lc == 1
-          title << " You beat #{self.prediction.called_out_loser.username} & #{wc} other user."
+          title << " You beat #{self.prediction.called_out_loser.username} & #{lc} other user."
         else
           title << " You beat #{self.prediction.called_out_loser.username} & #{lc} others."
         end
