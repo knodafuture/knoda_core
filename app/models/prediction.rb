@@ -232,7 +232,7 @@ class Prediction < ActiveRecord::Base
   def distance_text(d)
     t = distance_of_time_in_words_to_now(d)
     t.gsub!("about ", '')
-    t.gsub!("less than ",'')
+    t.gsub!("less than a",'1')
     t.gsub!("almost ",'')
     t.gsub!("over ",'')
     t.gsub!(" years", 'yrs')
