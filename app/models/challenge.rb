@@ -9,8 +9,6 @@ class Challenge < ActiveRecord::Base
   validate :prediction_is_not_expired, :on => :create
   validate :prediction_is_not_closed, :on => :create
 
-  after_create :challenge_create_badges
-
   scope :ownedAndPicked, -> {includes(:prediction, :user).order('created_at DESC')}
   scope :own, -> {joins(:prediction).where(is_own: true).order('created_at DESC')}
   scope :picks, -> {joins(:prediction).where(is_own: false).order('created_at DESC')}
@@ -176,11 +174,4 @@ class Challenge < ActiveRecord::Base
   def prediction_is_not_closed
     errors[:prediction] << "prediction is closed" if !self.prediction.closed_at.nil?
   end
-
-  def challenge_create_badges
-    if not self.is_own
-      self.user.challenge_create_badges
-    end
-  end
-
 end

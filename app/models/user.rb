@@ -7,7 +7,6 @@ class User < ActiveRecord::Base
   self.authorizer_name = 'UserAuthorizer'
 
   after_create :update_notification_settings
-  after_create :registration_badges
   after_create :send_signup_email
 
   before_update :send_email_if_username_was_changed
@@ -79,60 +78,6 @@ class User < ActiveRecord::Base
       self.streak = (self.streak > 0) ? self.streak+1 : +1
     else
       self.streak = (self.streak < 0) ? self.streak-1 : -1
-    end
-  end
-
-  def registration_badges
-    case self.id
-      when 1..500
-        self.badges.create(:name => 'gold_founding')
-      when 501..5000
-        self.badges.create(:name => 'silver_founding')
-    end
-  end
-
-  def prediction_create_badges
-    case self.predictions.size
-      when 1
-        self.badges.create(:name => '1_prediction')
-      when 10
-        self.badges.create(:name => '10_predictions')
-    end
-  end
-
-  def challenge_create_badges
-    case self.challenges.where(is_own: false).count
-      when 1
-        self.badges.create(:name => '1_challenge')
-    end
-  end
-
-  def outcome_badges
-    # 10 correct predictions badge
-    correct_predictions = self.predictions.where(outcome: true).count
-    correct_badge = self.badges.where(name: '10_correct_predictions').first
-
-    if correct_badge
-      if correct_predictions < 10
-        correct_badge.delete
-      end
-    else
-      if correct_predictions > 9
-        self.badges.create(name: '10_correct_predictions')
-      end
-    end
-
-    # 10 incorrect predictions badge
-    incorrect_predictions = self.predictions.where(outcome: false).count
-    incorrect_badge = self.badges.where(name: '10_incorrect_predictions').first
-    if incorrect_badge
-      if incorrect_predictions < 10
-        incorrect_badge.delete
-      end
-    else
-      if incorrect_predictions > 9
-        self.badges.create(name: '10_incorrect_predictions')
-      end
     end
   end
 
