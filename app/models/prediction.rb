@@ -9,7 +9,6 @@ class Prediction < ActiveRecord::Base
   include ActionView::Helpers::DateHelper
   self.authorizer_name = 'PredictionAuthorizer'
 
-  after_create :prediction_create_badges
   after_create :create_own_challenge
   after_create :shortenUrl
   after_create :after_create
@@ -195,7 +194,6 @@ class Prediction < ActiveRecord::Base
 
   def after_close
     if self.errors.size == 0
-      self.user.outcome_badges
       Activity.where(user_id: self.user.id, prediction_id: self.id, activity_type: 'EXPIRED').delete_all
       if self.group
         Group.rebuildLeaderboards(self.group)
@@ -288,10 +286,6 @@ class Prediction < ActiveRecord::Base
 
   def create_own_challenge
     self.challenges.create!(user: self.user, agree: true, is_own: true)
-  end
-
-  def prediction_create_badges
-    self.user.prediction_create_badges
   end
 
   def shortenUrl
