@@ -2,7 +2,7 @@ class FacebookWorker
   include Sidekiq::Worker
   @queue = :facebook
 
-  def perform(user_id, prediction_id, brag)
+  def perform(user_id, prediction_id, brag=false)
     ActiveRecord::Base.connection_pool.with_connection do
       user = User.find(user_id)
       account = user.facebook_account
