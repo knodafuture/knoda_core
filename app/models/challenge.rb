@@ -104,7 +104,7 @@ class Challenge < ActiveRecord::Base
 
   def to_activity
     activity_type = (self.agree == self.prediction.outcome) ? 'WON' : 'LOST'
-    shareable = (self.prediction.group != nil)
+    shareable = (self.prediction.group == nil)
     return {:user => self.user, :prediction_id => self.prediction.id, :title => notification_title(), :prediction_body => self.prediction.body, :activity_type => activity_type, :image_url => notification_image_url(), :shareable => shareable}
   end
 
