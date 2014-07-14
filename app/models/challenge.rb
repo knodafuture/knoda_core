@@ -83,7 +83,7 @@ class Challenge < ActiveRecord::Base
     self.user.update({points: self.user.points + self.total_points})
     self.user.update_streak(self.is_right)
     self.user.save!
-    ChallengeClose.perform_async(self.id)
+    ChallengeClose.perform_in(5.seconds, self.id)
   end
 
   def close_async
