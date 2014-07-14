@@ -215,9 +215,9 @@ class User < ActiveRecord::Base
     user.avatar = user.avatar_from_url social_params[:image]
     user.save
     if social_params[:current_user]
-      UserEvent.new(:user_id => user.id, :name => 'SIGNUP', :platform => social_params[:signup_source]).save
-    else
       UserEvent.new(:user_id => user.id, :name => 'CONVERT', :platform => social_params[:signup_source]).save
+    else
+      UserEvent.new(:user_id => user.id, :name => 'SIGNUP', :platform => social_params[:signup_source]).save
     end
     unless user.errors.empty?
       return user
