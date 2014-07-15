@@ -44,7 +44,7 @@ module CroppableAvatar extend ActiveSupport::Concern
   end
 
   def update_activity_images
-    if self.avatar_file_name_changed?
+    if self.avatar_file_name_changed? and self.avatar_file_name_was != nil
       new_url = self.avatar.to_s
       new_url.gsub!('/original/', '/small/')
       old_url = new_url.gsub(self.avatar_file_name, self.avatar_file_name_was)
