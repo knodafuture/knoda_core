@@ -1,20 +1,20 @@
 require "open_uri_redirections"
 module CroppableAvatar extend ActiveSupport::Concern
   included do
-    has_attached_file :avatar, :styles => { :big => ["344х344>", :jpg], :small => ["100x100>", :jpg], :thumb => ["40x40", :jpg]}, :default_url => ""
+    has_attached_file :avatar, :styles => { :big => ["344х344>"], :small => ["100x100>"], :thumb => ["40x40"]}, :default_url => ""
     validates_attachment_content_type :avatar, :content_type => ["image/jpg", "image/jpeg", "image/png", "image/gif", "application/octet-stream"]
-    before_post_process :update_filename
+    #before_post_process :update_filename
     after_post_process :update_activity_images
   end
 
   module ClassMethods
   end
 
-  def update_filename
-    self.avatar_file_name = "image.jpg"
-    self.avatar_content_type = "image/jpg"
-    :reprocess_avatar
-  end
+  #def update_filename
+  #  self.avatar_file_name = "image.jpg"
+  #  self.avatar_content_type = "image/jpg"
+  #  :reprocess_avatar
+  #end
 
   def avatar_geometry(style = :original)
     @geometry ||= {}
