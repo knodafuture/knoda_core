@@ -81,6 +81,26 @@ class User < ActiveRecord::Base
     end
   end
 
+  def reprocess_streak
+    c = self.challenges.joins(:prediction).where(:is_finished => true).order('predictions.closed_at desc')
+    s = 0
+    direction = nil
+    c.each do |i|
+      puts 'processing one: is_right = ' + i.is_right.to_s
+      if i.is_right
+        break if (direction and direction != 'W')
+        direction = 'W'
+        s = s+ 1
+      else
+        break if (direction and direction != 'L')
+        direction = 'L'
+        s = s - 1
+      end
+    end
+    self.streak = s
+    self.save
+  end
+
   def pick(prediction, agree)
     self.challenges.build({
       prediction: prediction,

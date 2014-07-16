@@ -162,8 +162,10 @@ class Prediction < ActiveRecord::Base
       c.user.update({points: c.user.points - c.total_points})
       c.update({is_right: false, is_finished: false, bs: false})
     end
-
     self.close_as(!self.outcome)
+    self.challenges.each do |c|
+      c.user.reprocess_streak
+    end
   end
 
   def request_for_bs
