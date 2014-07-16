@@ -34,7 +34,8 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
          :token_authenticatable, :omniauthable,
-         :authentication_keys => [:login]
+         :authentication_keys => [:login],
+         :remember_for => 2.years
 
   validates_presence_of   :username
   validates_uniqueness_of :username, :case_sensitive => false
