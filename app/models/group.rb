@@ -25,7 +25,8 @@ class Group < ActiveRecord::Base
     long_url = "#{Rails.application.config.knoda_web_url}/groups/join?id=#{hashedId}"
     if Rails.env.production?
       begin
-        self.share_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", long_url, {:base_url => "http://knoda.co"})
+        #self.share_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", long_url, {:base_url => "http://knoda.co"})
+        self.share_url = Owly::Shortener.shorten("CPdDACuu4AeEdMK2RyIDR", long_url)
       rescue
         self.share_url = long_url
       end
