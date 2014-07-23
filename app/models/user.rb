@@ -194,6 +194,10 @@ class User < ActiveRecord::Base
     return social_accounts.where(:provider_name => "facebook").first
   end
 
+  def is_admin?
+    roles.include?('ADMIN')
+  end
+
 
   def self.sanitize_new_username(username)
     users = User.where("username ilike ?", username + "%")
