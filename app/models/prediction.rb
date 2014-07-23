@@ -9,6 +9,7 @@ class Prediction < ActiveRecord::Base
   include ActionView::Helpers::DateHelper
   self.authorizer_name = 'PredictionAuthorizer'
 
+  before_create :set_resolution_date
   after_create :create_own_challenge
   after_create :shortenUrl
   after_create :after_create
@@ -283,6 +284,12 @@ class Prediction < ActiveRecord::Base
       if Topic.where(name: tag_name, hidden: false).first.nil?
         errors[:tags] << "invalid tag #{tag_name}"
       end
+    end
+  end
+
+  def set_resolution_date
+    if not self.resolution_date
+      self.resolution_date = self.expires_at + 1.minute
     end
   end
 
