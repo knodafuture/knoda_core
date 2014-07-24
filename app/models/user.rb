@@ -27,6 +27,7 @@ class User < ActiveRecord::Base
   has_many :social_accounts
   has_many :user_events
   has_many :notification_settings
+  has_many :contests, :inverse_of => :user
 
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
