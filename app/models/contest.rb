@@ -15,8 +15,11 @@ class Contest < ActiveRecord::Base
   scope :not_entered_by_user, -> (i) { where.not(:id => Prediction.select(:contest_id).distinct.joins(:challenges).where('challenges.user_id' => i).where('contest_id is not null')) if i}
 
   def leader_info
-    l = Contest.leaderboard(self)[0]
-    return {:username => l[:username], :id => l[:user_id]}
+    lb = Contest.leaderboard(self)
+    if lb.size > 0
+      l = lb[0]
+      return {:username => l[:username], :id => l[:user_id]}
+    end
   end
 
   def participants
@@ -24,13 +27,13 @@ class Contest < ActiveRecord::Base
   end
 
   def self.leaderboard(contest)
-    if Rails.cache.exist?("contest_leaderboard_#{contest.id}")
-      return Rails.cache.read("contest_leaderboard_#{contest.id}")
-    else
+    #if Rails.cache.exist?("contest_leaderboard_#{contest.id}")
+    #  return Rails.cache.read("contest_leaderboard_#{contest.id}")
+    #else
       lb = build_contest_leaderboard(contest)
       Rails.cache.write("contest_leaderboard_#{contest.id}", lb, timeToLive: 7.days)
       return lb
-    end
+    #end
   end
 
   def self.stage_leaderboard(contest_stage)
@@ -53,7 +56,7 @@ class Contest < ActiveRecord::Base
 
   private
     def self.build_contest_leaderboard(contest)
-      users = User.find_by_sql(["select *, (select count(*) from challenges INNER JOIN predictions ON predictions.id = challenges.prediction_id INNER JOIN users u on challenges.user_id = u.id where predictions.contest_id = ? and u.id = users.id and predictions.is_closed = true and challenges.is_right = true) won_count, (select count(*) from challenges INNER JOIN predictions ON predictions.id = challenges.prediction_id INNER JOIN users u on challenges.user_id = u.id where predictions.contest_id = ? and u.id = users.id and predictions.is_closed = true and challenges.is_right = false) lost_count from users order by won_count DESC;", contest.id, contest.id])
+      users = User.find_by_sql(["select *, (select count(*) from challenges INNER JOIN predictions ON predictions.id = challenges.prediction_id INNER JOIN users u on challenges.user_id = u.id where predictions.contest_id = ? and u.id = users.id and predictions.is_closed = true and challenges.is_right = true) won_count, (select count(*) from challenges INNER JOIN predictions ON predictions.id = challenges.prediction_id INNER JOIN users u on challenges.user_id = u.id where predictions.contest_id = ? and u.id = users.id and predictions.is_closed = true and challenges.is_right = false) lost_count from users where id in (select challenges.user_id from challenges INNER JOIN predictions ON predictions.id = challenges.prediction_id where predictions.contest_id = ? and predictions.is_closed = true) order by won_count DESC;", contest.id, contest.id, contest.id])
       leaders = []
       i = 0
       users.each do |u|
@@ -64,7 +67,7 @@ class Contest < ActiveRecord::Base
     end
 
     def self.build_stage_leaderboard(contest_stage)
-      users = User.find_by_sql(["select *, (select count(*) from challenges INNER JOIN predictions ON predictions.id = challenges.prediction_id INNER JOIN users u on challenges.user_id = u.id where predictions.contest_stage_id = ? and u.id = users.id and predictions.is_closed = true and challenges.is_right = true) won_count, (select count(*) from challenges INNER JOIN predictions ON predictions.id = challenges.prediction_id INNER JOIN users u on challenges.user_id = u.id where predictions.contest_stage_id = ? and u.id = users.id and predictions.is_closed = true and challenges.is_right = false) lost_count from users order by won_count DESC;", contest_stage.id, contest_stage.id])
+      users = User.find_by_sql(["select *, (select count(*) from challenges INNER JOIN predictions ON predictions.id = challenges.prediction_id INNER JOIN users u on challenges.user_id = u.id where predictions.contest_stage_id = ? and u.id = users.id and predictions.is_closed = true and challenges.is_right = true) won_count, (select count(*) from challenges INNER JOIN predictions ON predictions.id = challenges.prediction_id INNER JOIN users u on challenges.user_id = u.id where predictions.contest_stage_id = ? and u.id = users.id and predictions.is_closed = true and challenges.is_right = false) lost_count from users where id in (select challenges.user_id from challenges INNER JOIN predictions ON predictions.id = challenges.prediction_id where predictions.contest_stage_id = ? and predictions.is_closed = true) order by won_count DESC;", contest_stage.id, contest_stage.id, contest_stage_id])
       leaders = []
       i = 0
       users.each do |u|
