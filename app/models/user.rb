@@ -199,6 +199,10 @@ class User < ActiveRecord::Base
     roles.include?('ADMIN')
   end
 
+  def is_editor?
+    roles.include?('CONTEST_EDITOR')
+  end
+
 
   def self.sanitize_new_username(username)
     users = User.where("username ilike ?", username + "%")
