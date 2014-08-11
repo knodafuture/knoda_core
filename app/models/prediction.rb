@@ -16,6 +16,8 @@ class Prediction < ActiveRecord::Base
 
   belongs_to :user, inverse_of: :predictions
   belongs_to :group, inverse_of: :predictions
+  belongs_to :contest, inverse_of: :predictions
+  belongs_to :contest_stage, inverse_of: :predictions
 
   has_many :challenges, inverse_of: :prediction, :dependent => :destroy
   has_many :voters, through: :challenges, class_name: "User", source: 'user'
@@ -46,6 +48,7 @@ class Prediction < ActiveRecord::Base
   scope :readyForResolution, -> {where('is_closed is false and resolution_date < now()')}
   scope :notAlerted, -> {where('activity_sent_at is null')}
   scope :for_group, -> (i) {where('group_id = ?', i) if i}
+  scope :for_contest, -> (i) {where('contest_id = ?', i) if i}
   scope :losers, -> {where(:is_right => false)}
   scope :winners, -> {where(:is_right => false)}
   scope :visible_to_user, -> (i) {
@@ -201,6 +204,9 @@ class Prediction < ActiveRecord::Base
       if self.group
         Group.rebuildLeaderboards(self.group)
       end
+      if self.contest
+        Contest.rebuildLeaderboards(self.contest, self.contest_stage)
+      end
     end
   end
 
@@ -249,6 +255,16 @@ class Prediction < ActiveRecord::Base
     t.gsub!(" seconds", 's')
     t.gsub!(" second", 's')
     return t
+  end
+
+  def contest_name
+    if contest != nil
+      if contest_stage
+        return contest.name + " - " + contest_stage.name
+      else
+        return contest.name
+      end
+    end
   end
 
   private
