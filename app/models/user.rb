@@ -203,10 +203,6 @@ class User < ActiveRecord::Base
     roles.include?('CONTEST_EDITOR')
   end
 
-  def has_voted?(prediction)
-    self.challenges.prediction.agree?
-  end
-
 
 
   def self.sanitize_new_username(username)
