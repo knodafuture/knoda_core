@@ -27,13 +27,13 @@ class Contest < ActiveRecord::Base
   end
 
   def self.leaderboard(contest)
-    #if Rails.cache.exist?("contest_leaderboard_#{contest.id}")
-    #  return Rails.cache.read("contest_leaderboard_#{contest.id}")
-    #else
+    if Rails.cache.exist?("contest_leaderboard_#{contest.id}")
+      return Rails.cache.read("contest_leaderboard_#{contest.id}")
+    else
       lb = build_contest_leaderboard(contest)
       Rails.cache.write("contest_leaderboard_#{contest.id}", lb, timeToLive: 7.days)
       return lb
-    #end
+    end
   end
 
   def self.stage_leaderboard(contest_stage)
