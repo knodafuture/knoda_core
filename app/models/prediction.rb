@@ -49,6 +49,7 @@ class Prediction < ActiveRecord::Base
   scope :notAlerted, -> {where('activity_sent_at is null')}
   scope :for_group, -> (i) {where('group_id = ?', i) if i}
   scope :for_contest, -> (i) {where('contest_id = ?', i) if i}
+  scope :by_leaders, -> (i) { where(:user_id => Following.select(:leader_id).where(:user_id => i)) if i}
   scope :losers, -> {where(:is_right => false)}
   scope :winners, -> {where(:is_right => false)}
   scope :visible_to_user, -> (i) {

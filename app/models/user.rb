@@ -29,6 +29,12 @@ class User < ActiveRecord::Base
   has_many :notification_settings
   has_many :contests, :inverse_of => :user
 
+
+  has_many :followings
+  has_many :leaders, :through => :followings
+  has_many :inverse_followings, :class_name => "Following", :foreign_key => "leader_id"
+  has_many :followers, :through => :inverse_followings, :source => :user
+
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
   # :lockable, :timeoutable and :omniauthable
