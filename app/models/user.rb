@@ -286,4 +286,38 @@ class User < ActiveRecord::Base
       return nil
     end
   end
+
+  def twitter_friends_on_knoda
+    if twitter_account and twitter_account.access_token
+      client = Twitter::REST::Client.new do |config|
+        config.consumer_key        = Rails.application.config.twitter_key
+        config.consumer_secret     = Rails.application.config.twitter_secret
+        config.access_token        = twitter_account.access_token
+        config.access_token_secret = twitter_account.access_token_secret
+      end
+      friends = client.friends.to_a
+      ids = friends.collect { |x| x.id.to_s }
+      sa = SocialAccount.includes(:user).where(:provider_name => 'twitter', :provider_id => ids)
+      output = []
+      sa.each do |s|
+        contact_id = friends.select { |f| f.id.to_s == s.provider_id}[0].name
+        output << { :contact_id => contact_id, :knoda_info => {:user_id => s.user.id, :username => s.user.username}}
+      end
+      return output
+    else
+      return nil
+    end
+  end
+
+  def followed_by?(user)
+    return self.followers.select { |x| x.id == user.id}.size > 0
+  end
+
+  def led_by?(user)
+    return self.leaders.select { |x| x.id == user.id}.size > 0
+  end
+
+  def following(user)
+    return self.inverse_followings.select { |x| x.user_id == user.id}[0]
+  end
 end
