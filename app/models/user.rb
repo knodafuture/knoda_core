@@ -269,4 +269,21 @@ class User < ActiveRecord::Base
     account.save!
     return user
   end
+
+  def facebook_friends_on_knoda
+    if facebook_account and facebook_account.access_token
+      graph = Koala::Facebook::API.new(facebook_account.access_token)
+      friends = graph.get_connections("me", "friends")
+      ids = friends.collect { |x| x['id'] }
+      sa = SocialAccount.includes(:user).where(:provider_name => 'facebook', :provider_id => ids)
+      output = []
+      sa.each do |s|
+        contact_id = friends.select { |f| f['id'] == s.provider_id}[0]['name']
+        output << { :contact_id => contact_id, :knoda_info => {:user_id => s.user.id, :username => s.user.username}}
+      end
+      return output
+    else
+      return nil
+    end
+  end
 end
