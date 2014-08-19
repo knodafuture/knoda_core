@@ -50,7 +50,7 @@ class Contest < ActiveRecord::Base
   def self.rebuildLeaderboards(contest, contest_stage=nil)
     Rails.cache.write("contest_leaderboard_#{contest.id}", build_contest_leaderboard(contest), timeToLive: 7.days)
     if contest_stage
-      Rails.cache.write("contest_stage_leaderboard_#{contest_stage.id}", build_stage_leaderboard(contest), timeToLive: 7.days)
+      Rails.cache.write("contest_stage_leaderboard_#{contest_stage.id}", build_stage_leaderboard(contest_stage), timeToLive: 7.days)
     end
   end
 
