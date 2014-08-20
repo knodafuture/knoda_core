@@ -11,7 +11,11 @@ class Invitation < ActiveRecord::Base
   validates_format_of :recipient_email, :with => /.+@.+\..+/i, :allow_nil => true
 
   def invitation_link
-    "#{Rails.application.config.knoda_web_url}/groups/join?code=#{self.code}"
+    if group_id
+      return "#{Rails.application.config.knoda_web_url}/groups/join?code=#{self.code}"
+    else
+      return "#{Rails.application.config.knoda_web_url}/?invitation_code=#{self.code}"
+    end
   end
 
   def send_async

@@ -9,15 +9,25 @@ class InvitationMailer < MandrillMailer::TemplateMailer
     else
       to = User.find(invitation.recipient_user_id).email
     end
-    mandrill_mail template: 'group-invitation',
-      from_name: 'Knoda',
-      to: {email: to},
-      vars: {
+    if invitation.group_id
+      template = 'group-invitation'
+      vars = {
         'USERNAME' => invitation.user.username,
         'GROUPNAME' => invitation.group.name,
         'JOIN_URL' => "#{invitation.invitation_link}"
-      },
+      }
+    else
+      template = 'general-invitation'
+      vars = {
+        'USERNAME' => invitation.user.username,
+        'JOIN_URL' => "#{invitation.invitation_link}"
+      }
+    end
+    mandrill_mail template: template,
+      from_name: 'Knoda',
+      to: {email: to},
+      vars: vars,
       important: true,
-      inline_css: true    
+      inline_css: true
   end
 end

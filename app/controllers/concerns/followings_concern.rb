@@ -11,8 +11,11 @@ module FollowingsConcern extend ActiveSupport::Concern
       @followings = []
       params[:_json].each do | following_list_params |
         following_list_params.permit!
-        following = current_user.followings.create!(following_list_params)
-        @followings << following
+        begin
+          following = current_user.followings.create!(following_list_params)
+          @followings << following
+        rescue ActiveRecord::RecordNotUnique => e
+        end
       end
       render :json => @followings, :status => 201, root: false
     end
