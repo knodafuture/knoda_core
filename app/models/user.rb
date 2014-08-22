@@ -263,7 +263,7 @@ class User < ActiveRecord::Base
     return user
   end
 
-  def facebook_friends_on_knoda
+  def facebook_friends_on_knoda(full_user=false)
     if facebook_account and facebook_account.access_token
       graph = Koala::Facebook::API.new(facebook_account.access_token)
       friends = graph.get_connections("me", "friends")
@@ -272,15 +272,19 @@ class User < ActiveRecord::Base
       output = []
       sa.each do |s|
         contact_id = friends.select { |f| f['id'] == s.provider_id}[0]['name']
-        output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username}}
+        if full_user
+          output << { :contact_id => contact_id.to_s, :knoda_info => s.user}
+        else
+          output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image}}
+        end
       end
       return output
     else
-      return nil
+      return []
     end
   end
 
-  def twitter_friends_on_knoda
+  def twitter_friends_on_knoda(full_user=false)
     if twitter_account and twitter_account.access_token
       client = Twitter::REST::Client.new do |config|
         config.consumer_key        = Rails.application.config.twitter_key
@@ -294,11 +298,15 @@ class User < ActiveRecord::Base
       output = []
       sa.each do |s|
         contact_id = friends.select { |f| f.id.to_s == s.provider_id}[0].name
-        output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username}}
+        if full_user
+          output << { :contact_id => contact_id.to_s, :knoda_info => s.user}
+        else
+          output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image}}
+        end
       end
       return output
     else
-      return nil
+      return []
     end
   end
 
