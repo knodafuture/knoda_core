@@ -3,6 +3,7 @@ class User < ActiveRecord::Base
   searchkick text_start: [:username]
   include Authority::UserAbilities
   include CroppableAvatar
+  include DeviseConcern
   include Authority::Abilities
   self.authorizer_name = 'UserAuthorizer'
 
@@ -35,14 +36,6 @@ class User < ActiveRecord::Base
   has_many :inverse_followings, :class_name => "Following", :foreign_key => "leader_id"
   has_many :followers, :through => :inverse_followings, :source => :user
 
-  # Include default devise modules. Others available are:
-  # :token_authenticatable, :confirmable,
-  # :lockable, :timeoutable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable,
-         :token_authenticatable, :omniauthable,
-         :authentication_keys => [:login],
-         :remember_for => 2.years
 
   validates_presence_of   :username
   validates_uniqueness_of :username, :case_sensitive => false
@@ -279,7 +272,7 @@ class User < ActiveRecord::Base
       output = []
       sa.each do |s|
         contact_id = friends.select { |f| f['id'] == s.provider_id}[0]['name']
-        output << { :contact_id => contact_id, :knoda_info => {:user_id => s.user.id, :username => s.user.username}}
+        output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username}}
       end
       return output
     else
@@ -301,7 +294,7 @@ class User < ActiveRecord::Base
       output = []
       sa.each do |s|
         contact_id = friends.select { |f| f.id.to_s == s.provider_id}[0].name
-        output << { :contact_id => contact_id, :knoda_info => {:user_id => s.user.id, :username => s.user.username}}
+        output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username}}
       end
       return output
     else
