@@ -321,4 +321,12 @@ class User < ActiveRecord::Base
   def following(user)
     return self.inverse_followings.select { |x| x.user_id == user.id}[0]
   end
+
+  def follower_count
+    return self.inverse_followings.size
+  end
+
+  def following_count
+    return self.followings.size
+  end
 end
