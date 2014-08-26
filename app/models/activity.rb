@@ -19,6 +19,10 @@ class Activity < ActiveRecord::Base
         if (invitation_code.blank? || invitation_sender.blank? || invitation_group_name.blank?)
           errors.add(:base, "Specify an invitation code, sender, and group_name")
         end
+      elsif activity_type == 'FOLLOWING'
+        if (user_id.blank? || target_user_id.blank?)
+          errors.add(:base, "Specify a user and a target user")
+        end
       else
         if (prediction_id.blank? || prediction_body.blank?)
           errors.add(:base, "Specify an prediction_id and body")

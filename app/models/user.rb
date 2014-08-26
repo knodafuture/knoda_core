@@ -119,6 +119,7 @@ class User < ActiveRecord::Base
     self.notification_settings.create!(:user => self, :setting => 'PUSH_GROUP_INVITATION',  :display_name => 'Group Invitations', :description => 'Notify me when I am invited to join a group.',:active => true)
     self.notification_settings.create!(:user => self, :setting => 'PUSH_COMMENTS', :display_name => 'Comments', :description => 'Notify me when other users comment on my predictions, or reply to my comments.',:active => true)
     self.notification_settings.create!(:user => self, :setting => 'PUSH_OUTCOME',  :display_name => 'Wins & Losses', :description => 'Notify me when I win or lose a prediction I voted on.',:active => false)
+    self.notification_settings.create!(:user => self, :setting => 'PUSH_FOLLOWINGS',  :display_name => 'Followers', :description => 'Notify me when another Knoda user starts following me.',:active => true)
   end
 
   def send_signup_email
