@@ -1,7 +1,7 @@
 module FollowingsConcern extend ActiveSupport::Concern
   def create
     if params[:leader_id]
-      @following = current_user.followings.build(:leader_id => params[:leader_id])
+      @following = Following.find_or_initialize_by(:leader_id => params[:leader_id], :user_id => current_user.id)
       if @following.save
         render :json => @following, :status => 201
       else
