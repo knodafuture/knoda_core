@@ -287,25 +287,29 @@ class User < ActiveRecord::Base
 
   def twitter_friends_on_knoda(full_user=false)
     if twitter_account and twitter_account.access_token
-      client = Twitter::REST::Client.new do |config|
-        config.consumer_key        = Rails.application.config.twitter_key
-        config.consumer_secret     = Rails.application.config.twitter_secret
-        config.access_token        = twitter_account.access_token
-        config.access_token_secret = twitter_account.access_token_secret
-      end
-      friends = client.friends.to_a
-      ids = friends.collect { |x| x.id.to_s }
-      sa = SocialAccount.includes(:user).where(:provider_name => 'twitter', :provider_id => ids)
-      output = []
-      sa.each do |s|
-        contact_id = friends.select { |f| f.id.to_s == s.provider_id}[0].name
-        if full_user
-          output << { :contact_id => contact_id.to_s, :knoda_info => s.user}
-        else
-          output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image}}
+      begin
+        client = Twitter::REST::Client.new do |config|
+          config.consumer_key        = Rails.application.config.twitter_key
+          config.consumer_secret     = Rails.application.config.twitter_secret
+          config.access_token        = twitter_account.access_token
+          config.access_token_secret = twitter_account.access_token_secret
         end
+        friends = client.friends.to_a
+        ids = friends.collect { |x| x.id.to_s }
+        sa = SocialAccount.includes(:user).where(:provider_name => 'twitter', :provider_id => ids)
+        output = []
+        sa.each do |s|
+          contact_id = friends.select { |f| f.id.to_s == s.provider_id}[0].name
+          if full_user
+            output << { :contact_id => contact_id.to_s, :knoda_info => s.user}
+          else
+            output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image}}
+          end
+        end
+        return output
+      rescue Twitter::Error::TooManyRequests
+        return []
       end
-      return output
     else
       return []
     end
