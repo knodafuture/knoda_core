@@ -171,6 +171,7 @@ class Prediction < ActiveRecord::Base
     self.challenges.each do |c|
       c.user.reprocess_streak
     end
+    PredictionClose.perform_async(self.id)
   end
 
   def request_for_bs
