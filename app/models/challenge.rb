@@ -36,6 +36,15 @@ class Challenge < ActiveRecord::Base
   include Authority::Abilities
   self.authorizer_name = 'ChallengeAuthorizer'
 
+  after_create :update_leaderboards
+
+
+  def update_leaderboards
+    if self.prediction.contest
+      ContestLeaderboardRebuild.perform_async(self.prediction.contest_id, self.prediction.contest_stage_id)
+    end
+  end
+
   def base_points
     if self.is_own
       10 # inceptive for user making the prediction

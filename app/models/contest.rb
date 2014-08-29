@@ -18,7 +18,9 @@ class Contest < ActiveRecord::Base
     lb = Contest.leaderboard(self)
     if lb.size > 0
       l = lb[0]
-      return {:username => l[:username], :id => l[:user_id]}
+      if l[:won] > 0
+        return {:username => l[:username], :id => l[:user_id]}
+      end
     end
   end
 
