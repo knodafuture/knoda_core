@@ -1,4 +1,16 @@
 module FollowingsConcern extend ActiveSupport::Concern
+
+  def index
+    if params[:mode] == 'as_follower'
+      @followings = current_user.followings
+    elsif params[:mode] == 'as_leader'
+      @followings = current_user.inverse_followings
+    else
+      @followings = Following.where('user_id = ? OR leader_id = ?', current_user.id, current_user.id)
+    end
+    render :json => @followings, root: false
+  end
+
   def create
     if params[:leader_id]
       @following = Following.find_or_initialize_by(:leader_id => params[:leader_id], :user_id => current_user.id)
