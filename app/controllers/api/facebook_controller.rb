@@ -18,6 +18,8 @@ class Api::FacebookController < ActionController::Base
 		end
 		if p[:prediction_id]
 			FacebookWorker.perform_in(5.seconds, current_user.id,p[:prediction_id], brag)
+		else
+			FacebookInviteWorker.perform_async(current_user.id)
 		end
 
 		head :no_content

@@ -18,6 +18,8 @@ class Api::TwitterController < ActionController::Base
 		end
 		if p[:prediction_id]
 			TwitterWorker.perform_in(5.seconds, current_user.id, p[:prediction_id], brag)
+		else
+			TwitterInviteWorker.perform_async(current_user.id)
 		end
 		head :no_content
 	end
