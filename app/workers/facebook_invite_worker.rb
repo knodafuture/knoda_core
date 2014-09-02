@@ -16,7 +16,7 @@ class FacebookInviteWorker
       else
         message = "I'm on Knoda. Start following me to see all of my predictions."
       end
-      @graph.put_connections("me", "feed", :message => message, :link => "#{Rails.application.config.knoda_web_url}")
+      graph.put_connections("me", "feed", :message => message, :link => "#{Rails.application.config.knoda_web_url}")
     end
   end
 end
