@@ -19,12 +19,16 @@ class Api::TwitterController < ActionController::Base
 		if p[:prediction_id]
 			TwitterWorker.perform_in(5.seconds, current_user.id, p[:prediction_id], brag)
 		else
-			TwitterInviteWorker.perform_async(current_user.id)
+			if p[:message]
+				TwitterInviteWorker.perform_async(current_user.id, p[:message])
+			else
+				TwitterInviteWorker.perform_async(current_user.id)
+			end
 		end
 		head :no_content
 	end
 
 	def tweet_params
-  	return params.permit(:prediction_id)
+  	return params.permit(:prediction_id, :message)
 	end
 end

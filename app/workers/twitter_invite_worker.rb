@@ -2,7 +2,7 @@ class TwitterInviteWorker
   include Sidekiq::Worker
   @queue = :twitter
 
-  def perform(user_id)
+  def perform(user_id, msg=nil)
     ActiveRecord::Base.connection_pool.with_connection do
       user = User.find(user_id)
       account = user.twitter_account
@@ -16,8 +16,22 @@ class TwitterInviteWorker
         config.access_token        = account.access_token
         config.access_token_secret = account.access_token_secret
       end
-      message = "I'm on Knoda.  Start following me to see all of my predictions. via @KNODAfuture #{Rails.application.config.knoda_web_url}"
+      if msg
+        message = trim_message(msg, " via @KNODAfuture #{Rails.application.config.knoda_web_url}")
+      else
+        message = "I'm on Knoda. Start following me to see all of my predictions. via @KNODAfuture #{Rails.application.config.knoda_web_url}"
+      end
       client.update(message)
     end
   end
+
+  def trim_message message, suffix
+    max = 137 - suffix.length
+    if message.length >= max
+      message = message[0..max-5]
+      return "#{message}... #{suffix}"
+    end
+    return "#{message} #{suffix}"
+  end
+
 end

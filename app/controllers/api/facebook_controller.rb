@@ -19,13 +19,17 @@ class Api::FacebookController < ActionController::Base
 		if p[:prediction_id]
 			FacebookWorker.perform_in(5.seconds, current_user.id,p[:prediction_id], brag)
 		else
-			FacebookInviteWorker.perform_async(current_user.id)
+			if p[:message]
+				FacebookInviteWorker.perform_async(current_user.id, p[:message])
+			else
+				FacebookInviteWorker.perform_async(current_user.id)
+			end
 		end
 
 		head :no_content
 	end
 
 	def post_params
-      params.permit(:prediction_id, :group_id)
+      params.permit(:prediction_id, :group_id, :message)
     end
 end
