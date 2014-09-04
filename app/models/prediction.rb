@@ -184,6 +184,10 @@ class Prediction < ActiveRecord::Base
     end
   end
 
+  def is_right
+    return outcome
+  end
+
   def is_expired?
     self.expires_at.past?
   end
