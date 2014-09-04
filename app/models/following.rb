@@ -2,7 +2,7 @@ class Following < ActiveRecord::Base
   belongs_to :user
   belongs_to :leader, :class_name => "User"
   after_create :post_create
-  after_create :delete_inverse_notification
+  #after_create :delete_inverse_notification
 
   def post_create
     NotifyLeader.perform_async(self.id)
