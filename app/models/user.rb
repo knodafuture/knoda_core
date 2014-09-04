@@ -276,7 +276,7 @@ class User < ActiveRecord::Base
         if full_user
           output << { :contact_id => contact_id.to_s, :knoda_info => s.user}
         else
-          output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image}}
+          output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image, :following => led_by?(u)}}
         end
       end
       return output
@@ -303,7 +303,7 @@ class User < ActiveRecord::Base
           if full_user
             output << { :contact_id => contact_id.to_s, :knoda_info => s.user}
           else
-            output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image}}
+            output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image, :following => led_by?(u)}}
           end
         end
         return output
