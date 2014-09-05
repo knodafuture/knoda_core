@@ -10,6 +10,7 @@ class User < ActiveRecord::Base
   after_create :update_notification_settings
   after_create :send_signup_email
 
+  before_save :clean_data
   before_update :send_email_if_username_was_changed
   before_update :send_email_if_email_was_changed
 
@@ -333,5 +334,13 @@ class User < ActiveRecord::Base
 
   def following_count
     return self.followings.size
+  end
+
+  private
+
+  def clean_data
+    if self.phone
+      PhoneSanitizer.sanitize(self.phone)
+    end
   end
 end

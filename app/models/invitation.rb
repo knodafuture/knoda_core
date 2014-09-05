@@ -49,12 +49,8 @@ class Invitation < ActiveRecord::Base
 
   private
     def clean_data
-      puts self.recipient_phone
       if self.recipient_phone
-        self.recipient_phone.gsub!('(', '')
-        self.recipient_phone.gsub!(')', '')
-        self.recipient_phone.gsub!(' ', '')
-        self.recipient_phone.gsub!('-', '')
+        PhoneSanitizer.sanitize(self.recipient_phone)
       end
     end
 
