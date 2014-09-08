@@ -273,11 +273,13 @@ class User < ActiveRecord::Base
       sa = SocialAccount.includes(:user).where(:provider_name => 'facebook', :provider_id => ids)
       output = []
       sa.each do |s|
-        contact_id = friends.select { |f| f['id'] == s.provider_id}[0]['name']
-        if full_user
-          output << { :contact_id => contact_id.to_s, :knoda_info => s.user}
-        else
-          output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image, :following => led_by?(s.user)}}
+        if not led_by?(s.user)
+          contact_id = friends.select { |f| f['id'] == s.provider_id}[0]['name']
+          if full_user
+            output << { :contact_id => contact_id.to_s, :knoda_info => s.user}
+          else
+            output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image, :following => led_by?(s.user)}}
+          end
         end
       end
       return output
@@ -307,11 +309,13 @@ class User < ActiveRecord::Base
       sa = SocialAccount.includes(:user).where(:provider_name => 'twitter', :provider_id => ids)
       output = []
       sa.each do |s|
-        contact_id = friends.select { |f| f.id.to_s == s.provider_id}[0].name
-        if full_user
-          output << { :contact_id => contact_id.to_s, :knoda_info => s.user}
-        else
-          output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image, :following => led_by?(s.user)}}
+        if not led_by?(s.user)
+          contact_id = friends.select { |f| f.id.to_s == s.provider_id}[0].name
+          if full_user
+            output << { :contact_id => contact_id.to_s, :knoda_info => s.user}
+          else
+            output << { :contact_id => contact_id.to_s, :knoda_info => {:user_id => s.user.id, :username => s.user.username, :avatar_image => s.user.avatar_image}}
+          end
         end
       end
       return output
