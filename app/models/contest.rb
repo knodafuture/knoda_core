@@ -11,6 +11,7 @@ class Contest < ActiveRecord::Base
   validates_length_of :name, maximum: 30
   validates_length_of :description, maximum: 300
 
+  default_scope { order('id DESC') }
   scope :entered_by_user, -> (i) { where(:id => Prediction.select(:contest_id).distinct.joins(:challenges).where('challenges.user_id' => i).where('contest_id is not null')) if i }
   scope :not_entered_by_user, -> (i) { where.not(:id => Prediction.select(:contest_id).distinct.joins(:challenges).where('challenges.user_id' => i).where('contest_id is not null')) if i}
 
