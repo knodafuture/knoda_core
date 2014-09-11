@@ -344,6 +344,16 @@ class User < ActiveRecord::Base
     return self.followings.size
   end
 
+  def vs(other_user)
+    currentUserWonIds = self.challenges.where(:is_right => true, :is_finished => true).pluck(:prediction_id)
+    currentUserLostIds = self.challenges.where(:is_right => false, :is_finished => true).pluck(:prediction_id)
+    targetUserWonIds = other_user.challenges.where(:is_right => true, :is_finished => true).pluck(:prediction_id)
+    targetUserLostIds = other_user.challenges.where(:is_right => false, :is_finished => true).pluck(:prediction_id)
+    currentUserWinRecord = currentUserWonIds & targetUserLostIds
+    targetUserWinRecord = targetUserWonIds & currentUserLostIds
+    return {:user_won => currentUserWinRecord.size, :opponent_won => targetUserWinRecord.size}
+  end
+
   private
 
   def clean_data
