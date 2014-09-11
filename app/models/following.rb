@@ -4,6 +4,14 @@ class Following < ActiveRecord::Base
   after_create :post_create
   #after_create :delete_inverse_notification
 
+  validate :cannot_follow_yourself
+
+  def cannot_follow_yourself
+    if user_id == leader_id
+      errors.add(:leader_id, "You cannot follow yourself.")
+    end
+  end
+
   def post_create
     NotifyLeader.perform_async(self.id)
   end
