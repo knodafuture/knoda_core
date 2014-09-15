@@ -30,6 +30,7 @@ class User < ActiveRecord::Base
   has_many :user_events
   has_many :notification_settings
   has_many :contests, :inverse_of => :user
+  has_many :user_agreements, :inverse_of => :user
 
 
   has_many :followings
@@ -342,6 +343,10 @@ class User < ActiveRecord::Base
 
   def following_count
     return self.followings.size
+  end
+
+  def signed_contest_admin_agreement?
+    self.user_agreements.where(:agreement_type => 'CONTEST_ADMIN').size > 0
   end
 
   private
