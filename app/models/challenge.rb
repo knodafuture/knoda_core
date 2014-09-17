@@ -91,6 +91,7 @@ class Challenge < ActiveRecord::Base
     self.user.update_streak(self.is_right)
     self.user.save!
     ChallengeClose.perform_in(5.seconds, self.id)
+    FindRivals.perform_in(5.seconds, self.user_id)
   end
 
   def close_async

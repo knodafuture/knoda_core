@@ -42,7 +42,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :username, :case_sensitive => false
   validates_format_of     :username, :with => /\A[a-zA-Z0-9_]{1,15}\z/
 
-  attr_accessor :login
+  attr_accessor :login, :rivalry
 
   def self.username_length
     return 15
@@ -344,17 +344,61 @@ class User < ActiveRecord::Base
     return self.followings.size
   end
 
-  def vs(other_user)
-    currentUserWonIds = self.challenges.where(:is_right => true, :is_finished => true).pluck(:prediction_id)
-    currentUserLostIds = self.challenges.where(:is_right => false, :is_finished => true).pluck(:prediction_id)
-    targetUserWonIds = other_user.challenges.where(:is_right => true, :is_finished => true).pluck(:prediction_id)
-    targetUserLostIds = other_user.challenges.where(:is_right => false, :is_finished => true).pluck(:prediction_id)
+  def vs(other_user, prediction_ids=nil)
+    currentUserChallenges = self.challenges.select(:prediction_id, :is_right).where(:is_finished => true)
+    if prediction_ids
+      currentUserChallenges = currentUserChallenges.where(:prediction_id => prediction_ids)
+    end
+    currentUserWonIds = currentUserChallenges.select {|x| x.is_right == true}.collect { |n| n.prediction_id}
+    currentUserLostIds = currentUserChallenges.select {|x| x.is_right == false}.collect { |n| n.prediction_id}
+    targetUserChallenges = other_user.challenges.select(:prediction_id, :is_right).where(:is_finished => true)
+    if prediction_ids
+      targetUserChallenges = targetUserChallenges.where(:prediction_id => prediction_ids)
+    end
+    targetUserWonIds = targetUserChallenges.select {|x| x.is_right == true}.collect { |n| n.prediction_id}
+    targetUserLostIds = targetUserChallenges.select {|x| x.is_right == false}.collect { |n| n.prediction_id}
     currentUserWinRecord = currentUserWonIds & targetUserLostIds
     targetUserWinRecord = targetUserWonIds & currentUserLostIds
     return {:user_won => currentUserWinRecord.size, :opponent_won => targetUserWinRecord.size}
   end
 
-  private
+  def rivals
+    if Rails.cache.exist?("user_#{self.id}_rivals")
+      return Rails.cache.read("user_#{self.id}_rivals")
+    else
+      rivals = find_rivals
+      Rails.cache.write("user_#{self.id}_rivals", rivals)
+      return rivals
+    end
+  end
+
+  def find_rivals
+    top5Rivals = []
+    prediction_ids = self.challenges.select(:prediction_id).where(:is_finished => true).pluck(:prediction_id)
+    c = Challenge.select('user_id, count(*) AS challenge_count').where(:prediction_id => prediction_ids).where('user_id != ?', self.id).group('user_id').order('challenge_count desc').limit(20)
+    c.each do |challenge|
+      if top5Rivals.size > 4 and challenge.challenge_count < (top5Rivals.last[:conflict_count] * 0.75)
+        next
+      else
+        u = User.find(challenge.user_id)
+        vs = self.vs(u, prediction_ids)
+        u.rivalry = vs
+        if top5Rivals.size < 5
+          top5Rivals << {:user => u, :conflict_count => (vs[:user_won].to_i + vs[:opponent_won].to_i)}
+        else
+          if (vs[:user_won] + vs[:opponent_won]) > top5Rivals.last[:conflict_count]
+            top5Rivals[4] = {:user => u, :conflict_count => (vs[:user_won].to_i + vs[:opponent_won].to_i)}
+          else
+            next
+          end
+        end
+        top5Rivals.sort! {|a,b| b[:conflict_count] <=> a[:conflict_count]}
+      end
+    end
+    return top5Rivals.collect { |n| n[:user] }
+  end
+
+private
 
   def clean_data
     if self.phone
