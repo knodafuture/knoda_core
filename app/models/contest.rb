@@ -34,7 +34,7 @@ class Contest < ActiveRecord::Base
       return Rails.cache.read("contest_leaderboard_#{contest.id}")
     else
       lb = build_contest_leaderboard(contest)
-      Rails.cache.write("contest_leaderboard_#{contest.id}", lb, timeToLive: 7.days)
+      Rails.cache.write("contest_leaderboard_#{contest.id}", lb)
       return lb
     end
   end
@@ -44,16 +44,16 @@ class Contest < ActiveRecord::Base
       return Rails.cache.read("contest_stage_leaderboard_#{contest_stage.id}")
     else
       lb = build_stage_leaderboard(contest_stage)
-      Rails.cache.write("contest_stage_leaderboard_#{contest_stage.id}", lb, timeToLive: 7.days)
+      Rails.cache.write("contest_stage_leaderboard_#{contest_stage.id}", lb)
       return lb
     end
   end
 
 
   def self.rebuildLeaderboards(contest, contest_stage=nil)
-    Rails.cache.write("contest_leaderboard_#{contest.id}", build_contest_leaderboard(contest), timeToLive: 7.days)
+    Rails.cache.write("contest_leaderboard_#{contest.id}", build_contest_leaderboard(contest))
     if contest_stage
-      Rails.cache.write("contest_stage_leaderboard_#{contest_stage.id}", build_stage_leaderboard(contest_stage), timeToLive: 7.days)
+      Rails.cache.write("contest_stage_leaderboard_#{contest_stage.id}", build_stage_leaderboard(contest_stage))
     end
   end
 
