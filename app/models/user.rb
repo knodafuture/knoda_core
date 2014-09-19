@@ -381,7 +381,7 @@ class User < ActiveRecord::Base
         next
       else
         u = User.find(challenge.user_id)
-        vs = self.vs(u, prediction_ids)
+        vs = u.vs(self, prediction_ids)
         u.rivalry = vs
         if top5Rivals.size < 5
           top5Rivals << {:user => u, :conflict_count => (vs[:user_won].to_i + vs[:opponent_won].to_i)}
