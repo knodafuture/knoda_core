@@ -3,7 +3,10 @@ class NotifyLeader
 
   def perform(following_id)
     ActiveRecord::Base.connection_pool.with_connection do
-      Following.find(following_id).notify_leader
+      begin
+        Following.find(following_id).notify_leader
+      rescue ActiveRecord::RecordNotFound
+      end
     end
   end
 end

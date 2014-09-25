@@ -1,6 +1,5 @@
 class FindRivals
   include Sidekiq::Worker
-  @queue = :rivals
 
   def perform(user_id)
     ActiveRecord::Base.connection_pool.with_connection do

@@ -1,6 +1,5 @@
 class TwitterWorker
   include Sidekiq::Worker
-  @queue = :twitter
 
   def perform(user_id, prediction_id, brag)
     ActiveRecord::Base.connection_pool.with_connection do

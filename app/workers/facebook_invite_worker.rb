@@ -1,6 +1,5 @@
 class FacebookInviteWorker
   include Sidekiq::Worker
-  @queue = :facebook
 
   def perform(user_id, msg=nil)
     ActiveRecord::Base.connection_pool.with_connection do
