@@ -14,9 +14,6 @@ class Challenge < ActiveRecord::Base
   scope :picks, -> {joins(:prediction).where(is_own: false).order('created_at DESC')}
   scope :completed, -> {joins(:prediction).where(is_own: false, is_finished: true).order('expires_at DESC')}
 
-  scope :won_picks, -> {joins(:prediction).where(is_own: false, is_finished: true, is_right: true).order('expires_at DESC')}
-  scope :lost_picks, -> {joins(:prediction).where(is_own: false, is_finished: true, is_right: false).order('expires_at DESC')}
-  scope :unviewed, -> {where(seen: false)}
   scope :expired, -> {joins(:prediction).where("is_own is true and is_closed is false and ((resolution_date is null and expires_at < ?) or (resolution_date is not null and resolution_date < ?))", Time.now, Time.now).order("expires_at DESC")}
 
   scope :agreed_by_users, ->{where(agree: true).order('created_at DESC')}
@@ -26,8 +23,6 @@ class Challenge < ActiveRecord::Base
     where("((is_own IS FALSE) and (is_finished IS TRUE)) or ((is_own IS TRUE) and (resolution_date < now()))").
     order("CASE WHEN is_finished IS TRUE THEN predictions.closed_at ELSE predictions.expires_at END DESC")
   }
-
-  scope :last_day, ->{where("created_at >= ?", DateTime.now - 24.hours)}
 
   scope :created_at_lt, -> (i) {where('challenges.created_at < ?', i) if i}
   scope :id_lt, -> (i) {where('challenges.prediction_id < ?', i) if i}
@@ -47,9 +42,9 @@ class Challenge < ActiveRecord::Base
 
   def base_points
     if self.is_own
-      10 # inceptive for user making the prediction
+      10
     else
-      5 # inceptive for user agreeing or disagreeing with prediction
+      5
     end
   end
 

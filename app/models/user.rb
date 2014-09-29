@@ -16,7 +16,6 @@ class User < ActiveRecord::Base
 
   has_many :predictions, inverse_of: :user, :dependent => :destroy
   has_many :challenges, inverse_of: :user, :dependent => :destroy
-  has_many :badges, :dependent => :destroy
   has_many :voted_predictions, through: :challenges, class_name: "Prediction", source: 'prediction'
   has_many :apple_device_tokens, :dependent => :destroy
   has_many :android_device_tokens, :dependent => :destroy
@@ -89,7 +88,6 @@ class User < ActiveRecord::Base
     s = 0
     direction = nil
     c.each do |i|
-      puts 'processing one: is_right = ' + i.is_right.to_s
       if i.is_right
         break if (direction and direction != 'W')
         direction = 'W'
