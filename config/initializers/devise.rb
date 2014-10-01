@@ -47,7 +47,7 @@ module Devise
 
         begin
           self.last_api_version = VersionCake::VersionedRequest.new(request, nil).version
-        rescue exception
+        rescue
         end
       end
 
