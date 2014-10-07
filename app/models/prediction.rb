@@ -13,6 +13,7 @@ class Prediction < ActiveRecord::Base
   after_create :create_own_challenge
   after_create :shortenUrl
   after_create :after_create
+  after_create :detect_hashtags
 
   belongs_to :user, inverse_of: :predictions
   belongs_to :group, inverse_of: :predictions
@@ -218,6 +219,10 @@ class Prediction < ActiveRecord::Base
 
   def after_create
     PredictionImageWorker.perform_async(self.id)
+  end
+
+  def detect_hashtags
+    DetectHashtags.perform_async(self.body)
   end
 
   def search_data

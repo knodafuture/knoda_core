@@ -6,6 +6,7 @@ class Comment < ActiveRecord::Base
   validates :prediction_id, presence: true
 
   after_create :create_activities
+  after_create :detect_hashtags
 
   include Authority::Abilities
   self.authorizer_name = 'CommentAuthorizer'
@@ -16,6 +17,10 @@ class Comment < ActiveRecord::Base
 
   def create_activities
     NotifyCommentFollowers.perform_async(self.id)
+  end
+
+  def detect_hashtags
+    DetectHashtags.perform_async(self.text)
   end
 
   def notify_users
