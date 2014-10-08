@@ -14,6 +14,7 @@ class Prediction < ActiveRecord::Base
   after_create :shortenUrl
   after_create :after_create
   after_create :detect_hashtags
+  after_create :detect_mentions
 
   belongs_to :user, inverse_of: :predictions
   belongs_to :group, inverse_of: :predictions
@@ -225,6 +226,10 @@ class Prediction < ActiveRecord::Base
     DetectHashtags.perform_async(self.body)
   end
 
+  def detect_mentions
+    NotifyMentionedUsers.perform_async(self.id)
+  end
+
   def search_data
     {
         body: body,
@@ -274,6 +279,27 @@ class Prediction < ActiveRecord::Base
         return contest.name + " - " + contest_stage.name
       else
         return contest.name
+      end
+    end
+  end
+
+  def to_mention_push_text
+    if self.body.length > 100
+      body_sub = self.body.slice(0,97) + "..."
+    else
+      body_sub = self.body.slice(0,100)
+    end
+    t = "Holla! #{user.username} mentioned you in their prediction. #{body_sub}"
+  end
+
+  def notify_mentioned_users
+    mentions = self.body.scan(/@(\w+)/).flatten
+    mentions.each do |m|
+      user = User.where(["lower(username) = :username", {:username => m.downcase }]).first
+      if user
+        if user.notification_settings.where(:setting => 'PUSH_MENTIONS').first.active == true
+          MentionPushNotifier.deliver(self, user)
+        end
       end
     end
   end
