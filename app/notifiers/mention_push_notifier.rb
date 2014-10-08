@@ -17,7 +17,7 @@ class MentionPushNotifier
           badge:             recipient.alerts_count,
           custom: {
             "id" => prediction.id,
-            "type" => 'm'
+            "type" => 'p'
           }
         )
         x = pusher.push(notification)
@@ -25,7 +25,7 @@ class MentionPushNotifier
     end
     if recipient.android_device_tokens.size > 0
       gcm = GCM.new("AIzaSyDSuv3FpA4NtTXJivbsfh28vixLn55DrlI")
-      response = gcm.send_notification(recipient.android_device_tokens.pluck(:token), {data: {alert: message, id: prediction.id, type: 'm'}});
+      response = gcm.send_notification(recipient.android_device_tokens.pluck(:token), {data: {alert: message, id: prediction.id, type: 'p'}});
     end
   end
 end
