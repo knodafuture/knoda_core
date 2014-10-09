@@ -9,6 +9,6 @@ class CommentMentionActivityNotifier
     end
     a.created_at = DateTime.now
     a.seen = false
-    a.save
+    a.save!
   end
 end

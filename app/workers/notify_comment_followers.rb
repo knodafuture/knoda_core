@@ -3,7 +3,10 @@ class NotifyCommentFollowers
 
   def perform(comment_id)
     ActiveRecord::Base.connection_pool.with_connection do
-      Comment.find(comment_id).notify_users
+      begin
+        Comment.find(comment_id).notify_users
+      rescue ActiveRecord::RecordNotFound
+      end
     end
   end
 end
