@@ -78,6 +78,19 @@ class Comment < ActiveRecord::Base
     self.expires_at && self.expires_at.past?
   end
 
+  def notify_mentioned_users
+    mentions = self.text.scan(/@(\w+)/).flatten
+    mentions.each do |m|
+      user = User.where(["lower(username) = :username", {:username => m.downcase }]).first
+      if user
+        CommentMentionActivityNotifier.deliver(self, user)
+        if user.notification_settings.where(:setting => 'PUSH_MENTIONS').first.active == true
+          CommentMentionPushNotifier.deliver(self, user)
+        end
+      end
+    end
+  end
+
   def to_push_text(is_owner)
     if self.text.length > 100
       comment_text_sub = self.text.slice(0,97) + "..."
