@@ -4,7 +4,7 @@ class CommentMentionActivityNotifier
     a = Activity.find_or_initialize_by(user_id: recipient.id, prediction_id: comment.prediction.id, activity_type: 'MENTION')
     a.title = "#{comment.user.username} mentioned you in their comment."
     a.comment_body = comment.text
-    if prediction.user.avatar_image
+    if comment.user.avatar_image
       a.image_url = comment.user.avatar_image[:small]
     end
     a.created_at = DateTime.now
