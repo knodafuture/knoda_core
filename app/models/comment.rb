@@ -82,7 +82,7 @@ class Comment < ActiveRecord::Base
     mentions = self.text.scan(/@(\w+)/).flatten
     mentions.each do |m|
       user = User.where(["lower(username) = :username", {:username => m.downcase }]).first
-      if user
+      if user and (user != self.prediction.user) and (user != self.user)
         CommentMentionActivityNotifier.deliver(self, user)
         if user.notification_settings.where(:setting => 'PUSH_MENTIONS').first.active == true
           CommentMentionPushNotifier.deliver(self, user)
