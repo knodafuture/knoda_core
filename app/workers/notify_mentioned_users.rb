@@ -1,10 +1,14 @@
 class NotifyMentionedUsers
   include Sidekiq::Worker
 
-  def perform(prediction_id)
+  def perform(id, mentionType)
     ActiveRecord::Base.connection_pool.with_connection do
       begin
-        Prediction.find(prediction_id).notify_mentioned_users
+        if mentionType == 'PREDICTION'
+          Prediction.find(id).notify_mentioned_users
+        else
+          Comment.find(id).notify_mentioned_users
+        end
       rescue ActiveRecord::RecordNotFound
       end
     end

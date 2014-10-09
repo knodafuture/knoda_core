@@ -227,7 +227,7 @@ class Prediction < ActiveRecord::Base
   end
 
   def detect_mentions
-    NotifyMentionedUsers.perform_async(self.id)
+    NotifyMentionedUsers.perform_async(self.id, 'PREDICTION')
   end
 
   def search_data
@@ -297,8 +297,9 @@ class Prediction < ActiveRecord::Base
     mentions.each do |m|
       user = User.where(["lower(username) = :username", {:username => m.downcase }]).first
       if user
+        PredictionMentionActivityNotifier.deliver(self, user)
         if user.notification_settings.where(:setting => 'PUSH_MENTIONS').first.active == true
-          MentionPushNotifier.deliver(self, user)
+          PredictionMentionPushNotifier.deliver(self, user)
         end
       end
     end

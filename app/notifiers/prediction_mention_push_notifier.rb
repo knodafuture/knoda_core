@@ -1,4 +1,4 @@
-class MentionPushNotifier
+class PredictionMentionPushNotifier
 
   def self.deliver(prediction, recipient)
     message = prediction.to_mention_push_text()

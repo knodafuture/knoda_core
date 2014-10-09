@@ -7,6 +7,7 @@ class Comment < ActiveRecord::Base
 
   after_create :create_activities
   after_create :detect_hashtags
+  after_create :detect_mentions
 
   include Authority::Abilities
   self.authorizer_name = 'CommentAuthorizer'
@@ -21,6 +22,10 @@ class Comment < ActiveRecord::Base
 
   def detect_hashtags
     DetectHashtags.perform_async(self.text)
+  end
+
+  def detect_mentions
+    NotifyMentionedUsers.perform_async(self.id, 'COMMENT')
   end
 
   def notify_users
@@ -82,6 +87,15 @@ class Comment < ActiveRecord::Base
     t = notification_title(is_owner)
     t <<  "\"#{comment_text_sub}\""
     return t
+  end
+
+  def to_mention_push_text
+    if self.text.length > 100
+      comment_text_sub = self.text.slice(0,97) + "..."
+    else
+      comment_text_sub = self.text.slice(0,100)
+    end
+    t = "#{user.username} mentioned you in their comment. #{comment_text_sub}"
   end
 
   def notification_title(is_owner)
