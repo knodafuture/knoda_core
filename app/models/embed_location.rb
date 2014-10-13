@@ -8,4 +8,8 @@ class EmbedLocation < ActiveRecord::Base
   def increment_view_count
     self.view_count = self.view_count + 1
   end
+
+  def domain
+    URI.parse(self.url).host
+  end
 end
