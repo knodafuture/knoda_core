@@ -25,6 +25,7 @@ class Prediction < ActiveRecord::Base
   has_many :voters, through: :challenges, class_name: "User", source: 'user'
   has_many :comments, -> { order('created_at ASC') }, inverse_of: :prediction, :dependent => :destroy
   has_many :embed_locations, inverse_of: :prediction, :dependent => :destroy
+  has_many :activities, inverse_of: :prediction, :dependent => :destroy
 
   validates :body, presence: true
   validates :expires_at, presence: true
