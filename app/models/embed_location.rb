@@ -1,4 +1,5 @@
 class EmbedLocation < ActiveRecord::Base
+  default_scope {order('view_count DESC')}
   belongs_to :contest, inverse_of: :embed_locations
   belongs_to :prediction, inverse_of: :embed_locations
   before_save :increment_view_count
