@@ -64,6 +64,7 @@ private
           }
         )
         x = pusher.push(notification)
+      end
     end
   end
 end
