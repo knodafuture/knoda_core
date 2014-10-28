@@ -18,7 +18,7 @@ class MarketingPush
         end
       elsif params['contestinput'] != ""
         @contest= Contest.where(:id => params['contestinput'])
-        Contest.leaderboard(self).each do |l|
+        Contest.leaderboard(@contest).each do |l|
           user = User.find(l[:user_id])
           if params['pushtype'] == "Android" or params['pushtype'] == "All"
             send_android(user, message)
